@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "Overview", href: "/dashboard" },
-  { label: "Users", href: "/dashboard/users" },
-  { label: "Settings", href: "/dashboard/settings" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Inventory", href: "/dashboard/inventory" },
+  { label: "Category", href: "/dashboard/category" },
 ];
 
 export default function Sidebar() {

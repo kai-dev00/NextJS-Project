@@ -39,7 +39,8 @@ export default function LoginForm(): JSX.Element {
       return;
     }
 
-    router.push("/dashboard");
+    // router.push("/dashboard");
+    // router.refresh();
   };
 
   return (

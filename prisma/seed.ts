@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient } from "@/app/generated/prisma/client";
-
+import { v4 as uuidv4 } from "uuid";
 // Create adapter with Pool (required for @prisma/adapter-pg)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -63,26 +63,31 @@ async function main() {
 
   const users = [
     {
+      id: uuidv4(),
       email: "admin@example.com",
       fullName: "Admin User",
       password,
     },
     {
+      id: uuidv4(),
       email: "john@example.com",
       fullName: "John Doe",
       password,
     },
     {
+      id: uuidv4(),
       email: "jane@example.com",
       fullName: "Jane Doe",
       password,
     },
     {
+      id: uuidv4(),
       email: "mark@example.com",
       fullName: "Mark Smith",
       password,
     },
     {
+      id: uuidv4(),
       email: "lisa@example.com",
       fullName: "Lisa Brown",
       password,
