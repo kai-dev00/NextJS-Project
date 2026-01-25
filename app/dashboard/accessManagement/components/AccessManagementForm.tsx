@@ -9,7 +9,6 @@ import { CustomInput } from "@/components/CustomInput";
 import { inviteUserAction } from "../actions/invite.user";
 import { useRouter } from "next/navigation";
 import { userFormSchema, UserFormValues } from "../schema";
-import { useState } from "react";
 import { editUserAction } from "../actions/edit.user";
 import { showToast } from "@/lib/toast";
 
@@ -51,15 +50,11 @@ export default function AccessManagementForm({
     },
   });
   const {
-    formState: { isDirty },
+    formState: { isDirty, isSubmitting },
   } = form;
 
-  console.log(isDirty);
-
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   async function onSubmit(data: UserFormValues) {
-    setIsLoading(true);
     try {
       if (isEditMode && editUser) {
         await editUserAction({ ...data, id: editUser.id });
@@ -70,7 +65,7 @@ export default function AccessManagementForm({
         await inviteUserAction(inviteData);
         showToast.success(
           "Invite sent",
-          "The user will receive an email invitation"
+          "The user will receive an email invitation",
         );
       }
       router.refresh();
@@ -78,11 +73,9 @@ export default function AccessManagementForm({
     } catch (err: any) {
       showToast.error(
         "Something went wrong",
-        err?.message ?? "Please try again"
+        err?.message ?? "Please try again",
       );
       console.error(err);
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -158,9 +151,8 @@ export default function AccessManagementForm({
       <Button
         type="submit"
         className="w-full"
-        // disabled={isLoading}
-        disabled={isLoading || (isEditMode && !isDirty)}
-        loading={isLoading}
+        disabled={isSubmitting || (isEditMode && !isDirty)}
+        loading={isSubmitting}
       >
         {/* Send Invite */}
         {isEditMode ? "Update User" : "Send Invite"}

@@ -3,6 +3,8 @@
 import { useForm } from "react-hook-form";
 import { changePasswordAction } from "@/app/actions/auth.change-password";
 import { useState } from "react";
+import { CustomInput } from "@/components/CustomInput";
+import { showToast } from "@/lib/toast";
 
 type Props = {
   user: {
@@ -10,6 +12,7 @@ type Props = {
     fullName: string | null;
     email: string;
     role: string;
+    phoneNumber: string;
     createdAt: string;
   };
   session: {
@@ -28,7 +31,12 @@ export default function ProfileClient({ user, session }: Props) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ChangePasswordForm>();
+  } = useForm<ChangePasswordForm>({
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+    },
+  });
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +47,17 @@ export default function ProfileClient({ user, session }: Props) {
 
     try {
       await changePasswordAction(data.currentPassword, data.newPassword);
-
       setSuccess(true);
-      reset(); // clears form
+      showToast.success(
+        "Password updated",
+        "Your password has been updated successfully.",
+      );
+      reset();
     } catch (err: any) {
+      showToast.error(
+        "Something went wrong",
+        err?.message ?? "Failed to update password.",
+      );
       setError(err?.message ?? "Something went wrong");
     }
   }
@@ -70,65 +85,48 @@ export default function ProfileClient({ user, session }: Props) {
             label="Joined"
             value={new Date(user.createdAt).toLocaleDateString()}
           />
-          <InfoRow label="Session Role" value={session.role} />
+          <InfoRow label="Role" value={session.role} />
+          <InfoRow label="Phone Number" value={user.phoneNumber} />
         </div>
       </div>
 
       {/* Change password */}
-      <div className="rounded border p-4">
-        <h2 className="mb-3 font-medium">Change Password</h2>
+      <div className="rounded-lg border bg-white p-6 shadow-sm">
+        <h2 className="mb-4 font-medium">Change Password</h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-          <div>
-            <input
-              type="password"
-              placeholder="Current password"
-              className="w-full rounded border px-3 py-2"
-              autoComplete="off"
-              {...register("currentPassword", {
-                required: "Current password is required",
-              })}
-            />
-            {errors.currentPassword && (
-              <p className="text-sm text-red-500">
-                {errors.currentPassword.message}
-              </p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <CustomInput
+            label="Current Password"
+            type="password"
+            autoComplete="current-password"
+            required
+            error={errors.currentPassword?.message}
+            {...register("currentPassword", {
+              required: "Current password is required",
+            })}
+          />
 
-          <div>
-            <input
-              type="password"
-              placeholder="New password"
-              className="w-full rounded border px-3 py-2"
-              autoComplete="off"
-              {...register("newPassword", {
-                required: "New password is required",
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters",
-                },
-              })}
-            />
-            {errors.newPassword && (
-              <p className="text-sm text-red-500">
-                {errors.newPassword.message}
-              </p>
-            )}
-          </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          {success && (
-            <p className="text-sm text-green-600">
-              Password updated successfully
-            </p>
-          )}
+          <CustomInput
+            label="New Password"
+            type="password"
+            autoComplete="new-password"
+            required
+            error={errors.newPassword?.message}
+            {...register("newPassword", {
+              required: "New password is required",
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters",
+              },
+            })}
+          />
 
           <button
+            type="submit"
             disabled={isSubmitting}
             className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
           >
-            {isSubmitting ? "Updating..." : "Update password"}
+            {isSubmitting ? "Updating..." : "Update"}
           </button>
         </form>
       </div>

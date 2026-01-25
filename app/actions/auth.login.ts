@@ -4,36 +4,27 @@ import { setAuthCookies } from "@/lib/cookies";
 import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
+import { LoginFormValues } from "../(auth)/login/page";
 
-export type LoginActionResult =
-  | { success: true }
-  | { success: false; error: string };
+export async function loginAction(data: LoginFormValues) {
+  const { email, password } = data;
 
-export async function loginAction(
-  formData: FormData
-): Promise<LoginActionResult> {
-  const email = formData.get("email");
-  const password = formData.get("password");
+  if (typeof email !== "string" || typeof password !== "string")
+    throw new Error("Invalid form data");
 
-  if (typeof email !== "string" || typeof password !== "string") {
-    return { success: false, error: "Invalid form data" };
-  }
-  console.log("LOGIN ACTION START");
   const user = await prisma.user.findUnique({
     where: { email },
     include: { role: true },
   });
-  console.log("USER FOUND:", !!user);
+
   if (!user) {
-    return { success: false, error: "Invalid email or password" };
+    throw new Error("Invalid email or password");
   }
 
   const isValid = await bcrypt.compare(password, user.password);
-  console.log("is it valid:", isValid);
 
   if (!isValid) {
-    return { success: false, error: "Invalid email or password" };
+    throw new Error("Invalid email or password");
   }
 
   const accessToken = await signAccessToken({
@@ -53,8 +44,6 @@ export async function loginAction(
     },
   });
 
-  // 3️⃣ Store cookies
   await setAuthCookies(accessToken, refreshToken);
-  redirect("/dashboard");
   return { success: true };
 }

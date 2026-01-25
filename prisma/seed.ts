@@ -68,6 +68,7 @@ async function main() {
       firstName: "Admin",
       lastName: "User",
       fullName: "Admin User",
+      phoneNumber: "+1234567890",
       password,
     },
     {
@@ -76,6 +77,7 @@ async function main() {
       firstName: "John",
       lastName: "Doe",
       fullName: "John Doe",
+      phoneNumber: "+1234567890",
       password,
     },
     {
@@ -84,6 +86,7 @@ async function main() {
       firstName: "Kyle",
       lastName: "Manuel",
       fullName: "Kyle Manuel",
+      phoneNumber: "+1234567890",
       password,
     },
   ];

@@ -1,52 +1,56 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { loginAction, LoginActionResult } from "@/app/actions/auth.login";
+import { loginAction } from "@/app/actions/auth.login";
 import { JSX, useState } from "react";
+import { CustomInput } from "@/components/CustomInput";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 
-type LoginFormValues = {
-  email: string;
-  password: string;
-};
+const loginSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm(): JSX.Element {
-  const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues): Promise<void> => {
+  const onSubmit = async (values: LoginFormValues) => {
     setServerError(null);
-
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-
-    const result: LoginActionResult = await loginAction(formData);
-
-    if (!result.success) {
-      setServerError(result.error);
-      return;
+    try {
+      const result = await loginAction(values);
+      if (result?.success) {
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setServerError(err.message || "Login failed");
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-md space-y-5 rounded-xl border bg-white p-6 shadow-sm"
       >
-        {/* Header */}
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome to Bean Counter!
@@ -54,59 +58,39 @@ export default function LoginForm(): JSX.Element {
           <p className="text-sm text-gray-500">Log in to your account</p>
         </div>
 
-        {/* Server error */}
         {serverError && (
           <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
             {serverError}
           </div>
         )}
-
-        {/* Email */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Email</label>
-          <input
-            type="email"
-            {...register("email", { required: "Email is required" })}
-            placeholder="you@example.com"
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black"
-          />
-          {errors.email && (
-            <p className="text-xs text-red-600">{errors.email.message}</p>
-          )}
-        </div>
-
-        {/* Password */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Password</label>
-          <input
-            type="password"
-            {...register("password", { required: "Password is required" })}
-            placeholder="••••••••"
-            className="w-full rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black"
-          />
-          {errors.password && (
-            <p className="text-xs text-red-600">{errors.password.message}</p>
-          )}
-        </div>
-
-        {/* Submit */}
-        <button
+        <CustomInput
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+        <CustomInput
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          {...register("password")}
+        />
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
+          loading={isSubmitting}
+          className="w-full"
         >
-          {isSubmitting ? "Signing in..." : "Login"}
-        </button>
+          Login
+        </Button>
         <div className="text-center text-sm text-gray-600">
-          <button
-            type="button"
-            onClick={() => router.push("/forgotPassword")}
-            className="font-medium text-black hover:underline"
-          >
-            Reset Password
-          </button>
+          <Link href="/forgotPassword" className="hover:underline">
+            Forgot Password?
+          </Link>
         </div>
       </form>
-    </div>
+    </main>
   );
 }

@@ -1,55 +1,3 @@
-// "use client";
-
-// import Link from "next/link";
-// import { usePathname } from "next/navigation";
-// import {
-//   NavigationMenu,
-//   NavigationMenuItem,
-//   NavigationMenuList,
-//   NavigationMenuLink,
-// } from "@/components/ui/navigation-menu";
-// import { cn } from "@/lib/utils";
-
-// export function NavigationMenuDemo() {
-//   const pathname = usePathname();
-
-//   const items = [
-//     {
-//       label: "User Management",
-//       href: "/dashboard/accessManagement/users",
-//     },
-//     {
-//       label: "Role Management",
-//       href: "/dashboard/accessManagement/roles",
-//     },
-//   ];
-//   return (
-//     <NavigationMenu>
-//       <NavigationMenuList>
-//         {items.map((item) => {
-//           const active = pathname.startsWith(item.href);
-//           return (
-//             <NavigationMenuItem key={item.href}>
-//               <Link href={item.href} legacyBehavior passHref>
-//                 <NavigationMenuLink
-//                   className={cn(
-//                     "px-4 py-2 rounded-md text-sm font-medium",
-//                     active
-//                       ? "bg-accent text-accent-foreground"
-//                       : "hover:bg-accent/50"
-//                   )}
-//                 >
-//                   {item.label}
-//                 </NavigationMenuLink>
-//               </Link>
-//             </NavigationMenuItem>
-//           );
-//         })}
-//       </NavigationMenuList>
-//     </NavigationMenu>
-//   );
-// }
-
 "use client";
 
 import Link from "next/link";
@@ -76,7 +24,7 @@ export function NavigationMenuDemo() {
                 "px-4 py-2 rounded-md text-sm font-medium",
                 pathname.includes("/users")
                   ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               User Management
@@ -92,7 +40,7 @@ export function NavigationMenuDemo() {
                 "px-4 py-2 rounded-md text-sm font-medium",
                 pathname.includes("/roles")
                   ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               Role Management

@@ -15,13 +15,19 @@ export async function inviteUserAction(input: AddFormValues) {
 
   if (exists) throw new Error("User already exists");
 
-  // Generate invite token
+  const existingInvitedUser = await prisma.userInvite.findUnique({
+    where: { email: data.email },
+  });
+
+  if (existingInvitedUser) {
+    throw new Error("An invitation has already been sent to this email");
+  }
+
   const token = randomBytes(32).toString("hex");
 
   // Set expiry, e.g., 7 days from now
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  // Save invite record
   await prisma.userInvite.create({
     data: {
       email: data.email,

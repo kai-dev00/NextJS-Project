@@ -26,6 +26,7 @@ model User {
   firstName String
   lastName  String
   fullName  String?
+  phoneNumber      String
   roleId    Int  
   emailVerifiedAt  DateTime?
   isActive         Boolean  @default(false)
@@ -40,7 +41,7 @@ model User {
 
 model UserInvite {
   id          String   @id @default(uuid())
-  email       String
+  email       String   @unique
   firstName   String
   lastName    String
   roleId      Int

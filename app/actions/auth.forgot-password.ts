@@ -3,8 +3,12 @@
 import { sendResetPasswordEmail } from "@/lib/email";
 import prisma from "@/lib/prisma";
 import { randomBytes } from "crypto";
+import { ForgotPasswordFormValues } from "../(auth)/forgotPassword/page";
 
-export async function forgotPasswordAction(email: string) {
+export async function forgotPasswordAction(data: ForgotPasswordFormValues) {
+  const { email } = data;
+
+  // export async function forgotPasswordAction(email: string) {
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -23,8 +27,6 @@ export async function forgotPasswordAction(email: string) {
       expiresAt: new Date(Date.now() + 1000 * 60 * 30), // 30 mins
     },
   });
-
-  const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
 
   await sendResetPasswordEmail(user.email, token);
 }

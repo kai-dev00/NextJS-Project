@@ -54,6 +54,7 @@ export async function getCurrentUserWithDetails() {
       fullName: true,
       email: true,
       role: true,
+      phoneNumber: true,
       createdAt: true,
     },
   });

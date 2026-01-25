@@ -17,6 +17,7 @@ export default async function ProfilePage() {
         fullName: user.fullName,
         email: user.email,
         role: user.role.name,
+        phoneNumber: user.phoneNumber,
         createdAt: user.createdAt.toISOString(),
       }}
       session={{
