@@ -2,6 +2,7 @@
 import { getCurrentUserWithDetails } from "@/lib/auth";
 import LogoutButton from "../../components/LogoutButton";
 import Sidebar from "./sidebar";
+import { AuthProvider } from "../(auth)/AuthProvider";
 
 export default async function DashboardLayout({
   children,
@@ -9,24 +10,33 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUserWithDetails();
-
+  const sidebarUser = user
+    ? {
+        fullName: user.fullName ?? null,
+        email: user.email ?? "",
+        role: user.role?.name ?? "USER",
+      }
+    : null;
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar - completely fixed, no scroll */}
-      <div className="w-64 shrink-0">
-        <Sidebar user={user} />
-      </div>
+    <AuthProvider
+      value={{
+        role: user?.role?.name ?? "GUEST",
+        permissions: user?.permissions ?? [],
+      }}
+    >
+      <div className="flex h-screen overflow-hidden">
+        <div className="w-64 shrink-0">
+          <Sidebar user={sidebarUser} />
+        </div>
 
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header - fixed */}
-        <header className="h-14 border-b bg-white px-6 flex items-center justify-between shrink-0">
-          <h1 className="text-sm font-medium">Dashboard</h1>
-        </header>
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <header className="h-14 border-b bg-white px-6 flex items-center justify-between shrink-0">
+            <h1 className="text-sm font-medium">Dashboard</h1>
+          </header>
 
-        {/* Main - ONLY scrollable part */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+          <main className="flex-1 overflow-y-auto">{children}</main>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }

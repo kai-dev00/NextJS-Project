@@ -1,11 +1,13 @@
 "use server";
 
+import { requirePermission } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function deleteAccessAction(
   id: string,
-  source: "USER" | "INVITE"
+  source: "USER" | "INVITE",
 ) {
+  await requirePermission("access-management:delete:users");
   if (source === "USER") {
     await prisma.user.delete({
       where: { id },

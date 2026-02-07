@@ -4,8 +4,11 @@ import prisma from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { UserFormValues } from "../schema";
 import { sendInviteEmail } from "@/lib/email";
+import { requirePermission } from "@/lib/auth";
 
 export async function inviteUserAction(input: UserFormValues) {
+  await requirePermission("access-management:create:users");
+
   if (!input.firstName?.trim()) {
     throw new Error("First name is required");
   }

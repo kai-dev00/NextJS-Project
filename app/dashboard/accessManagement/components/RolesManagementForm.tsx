@@ -12,6 +12,7 @@ import { createRoleAction, updateRoleAction } from "../actions/roles";
 import Link from "next/link";
 import { PermissionTable } from "./PermissionTable";
 import { showToast } from "@/lib/toast";
+import { usePermission } from "@/app/(auth)/AuthProvider";
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
@@ -41,6 +42,8 @@ type Props = {
 };
 
 export function RoleForm({ role, permissions }: Props) {
+  const { can } = usePermission();
+
   const router = useRouter();
   const isEdit = !!role;
 
@@ -64,14 +67,15 @@ export function RoleForm({ role, permissions }: Props) {
   async function onSubmit(data: RoleFormValues) {
     try {
       if (isEdit) {
+        if (!can("access-management:update:roles")) return;
         await updateRoleAction(role!.id, data);
         showToast.success(
           "Role updated",
           "The role has been successfully updated.",
         );
       } else {
+        if (!can("access-management:create:roles")) return;
         await createRoleAction(data);
-
         showToast.success(
           "Role created",
           "The role has been successfully created.",

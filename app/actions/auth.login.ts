@@ -14,7 +14,11 @@ export async function loginAction(data: LoginFormValues) {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { role: true },
+    include: {
+      role: {
+        include: { permissions: true },
+      },
+    },
   });
 
   if (!user) {
@@ -27,9 +31,14 @@ export async function loginAction(data: LoginFormValues) {
     throw new Error("Invalid email or password");
   }
 
+  const permissions = user.role.permissions.map(
+    (p) => `${p.module}:${p.action}${p.submodule ? `:${p.submodule}` : ""}`,
+  );
+
   const accessToken = await signAccessToken({
     userId: user.id,
     role: user.role.name,
+    permissions,
   });
 
   const refreshToken = await signRefreshToken({

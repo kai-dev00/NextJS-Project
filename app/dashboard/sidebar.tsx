@@ -3,31 +3,46 @@
 import LogoutButton from "@/components/LogoutButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { usePermission } from "../(auth)/AuthProvider";
 
 type SidebarUser = {
   fullName: string | null;
   email: string;
+  role: string;
 };
 
 const navItems = [
-  { label: "Dashboard", href: "/dashboard", exact: true },
-  { label: "Inventory", href: "/dashboard/inventory", exact: true },
-  { label: "Category", href: "/dashboard/category", exact: true },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    exact: true,
+    permission: "dashboard:read",
+  },
+  {
+    label: "Inventory",
+    href: "/dashboard/inventory",
+    exact: true,
+    permission: "inventory:read",
+  },
+  {
+    label: "Category",
+    href: "/dashboard/category",
+    exact: true,
+    permission: "category:read",
+  },
   {
     label: "Access Management",
     href: "/dashboard/accessManagement",
-    exact: false, // section
+    exact: false,
     default: "/dashboard/accessManagement/users",
+    anyOf: ["access-management:read:users", "access-management:read:roles"],
   },
 ];
 
-// export default function Sidebar() {
 export default function Sidebar({ user }: { user: SidebarUser | null }) {
   const pathname = usePathname();
 
   return (
-    // <aside className="w-64 bg-black text-white p-6">
-
     <aside className="flex h-screen w-64 flex-col bg-black text-white px-4">
       <h2 className="mb-2 py-4 pl-2 font-semibold text-lg border-b border-gray-800">
         Bean Counter
@@ -57,21 +72,18 @@ export default function Sidebar({ user }: { user: SidebarUser | null }) {
 
       <div className="flex-1" />
 
-      {/* Static Profile Display */}
       {user && (
         <div className="border-t border-gray-800 p-4 flex justify-between items-center">
           <Link href="/dashboard/profile" className="flex items-center gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-700 text-sm font-semibold">
-                {user.fullName?.[0] ?? "U"}
-              </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-700 text-sm font-semibold">
+              {user.fullName?.[0] ?? "U"}
+            </div>
 
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {user.fullName ?? "User"}
-                </p>
-                <p className="truncate text-xs text-gray-400">{user.email}</p>
-              </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">
+                {user.fullName ?? "User"}
+              </p>
+              <p className="truncate text-xs text-gray-400">{user.role}</p>
             </div>
           </Link>
           <LogoutButton />

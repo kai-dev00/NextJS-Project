@@ -3,7 +3,7 @@ import { z } from "zod";
 export const userFormSchema = z
   .object({
     id: z.string().optional(),
-    email: z.string().email("Invalid email address"),
+    email: z.string().email("Invalid email address").optional(),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     roleId: z.string().min(1, "Role is required"),
@@ -24,6 +24,14 @@ export const userFormSchema = z
           code: z.ZodIssueCode.custom,
           message: "Last name is required",
           path: ["lastName"],
+        });
+      }
+
+      if (!data.email || data.email.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Email is required",
+          path: ["email"],
         });
       }
     }
