@@ -7,12 +7,12 @@ import { CustomModal } from "@/components/CustomModal";
 import AccessManagementForm from "./AccessManagementForm";
 import { deleteAccessAction } from "../actions/delete.user";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { showToast } from "@/lib/toast";
 import { RoleOption, UserRow } from "../users/page";
-import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
-// import { DeleteUserButton } from "./DeleteUserButton";
+import { usePermission } from "@/app/(auth)/AuthProvider";
+import NoPermission from "../../no-permission";
+
 type EditUserData = {
   id: string;
   email: string;
@@ -29,6 +29,11 @@ export default function AccessManagementClient({
   users: UserRow[];
   roles: RoleOption[];
 }) {
+  const { can, permissions } = usePermission();
+  if (!can("access-management:read:users")) {
+    return <NoPermission />;
+  }
+
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState<EditUserData | undefined>(undefined);
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
@@ -36,6 +41,7 @@ export default function AccessManagementClient({
   const router = useRouter();
 
   const handleEdit = (user: UserRow) => {
+    if (!can("access-management:update:users")) return;
     const role = roles.find((r) => r.name === user.role);
     setEditUser({
       id: user.id,
@@ -50,11 +56,15 @@ export default function AccessManagementClient({
   };
 
   const handleAddNew = () => {
+    if (!can("access-management:create:users")) return;
+
     setEditUser(undefined);
     setOpen(true);
   };
 
   const handleDelete = async () => {
+    if (!can("access-management:delete:users")) return;
+
     if (!deleteUser) return;
     setDeleting(true);
     try {
@@ -117,12 +127,20 @@ export default function AccessManagementClient({
       className: "text-right",
       cell: (row) => (
         <div className="flex justify-center gap-2">
-          <Button size="sm" variant="ghost" onClick={() => handleEdit(row)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setDeleteUser(row)}>
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
+          {can("access-management:update:users") && (
+            <Button size="sm" variant="ghost" onClick={() => handleEdit(row)}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+          {can("access-management:delete:users") && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setDeleteUser(row)}
+            >
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -133,7 +151,9 @@ export default function AccessManagementClient({
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Search</h1>
 
-        <Button onClick={handleAddNew}>Add User</Button>
+        {can("access-management:create:users") && (
+          <Button onClick={handleAddNew}>Add User</Button>
+        )}
       </div>
 
       <DataTable data={users} columns={columns} keyField="id" />

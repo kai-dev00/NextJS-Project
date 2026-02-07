@@ -10,6 +10,8 @@ import { DataTable, Column } from "@/components/DataTable";
 import { CustomModal } from "@/components/CustomModal";
 import { deleteRoleAction } from "../actions/roles";
 import { showToast } from "@/lib/toast";
+import { usePermission } from "@/app/(auth)/AuthProvider";
+import NoPermission from "../../no-permission";
 
 type Role = {
   id: string;
@@ -24,6 +26,11 @@ type Props = {
 };
 
 export function RolesManagementClient({ roles }: Props) {
+  const { can } = usePermission();
+  if (!can("access-management:read:roles")) {
+    return <NoPermission />;
+  }
+
   const router = useRouter();
 
   const [deleteModal, setDeleteModal] = useState<{
@@ -34,6 +41,8 @@ export function RolesManagementClient({ roles }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
+    if (!can("access-management:delete:roles")) return;
+
     if (!deleteModal.role) return;
 
     try {
@@ -85,19 +94,22 @@ export function RolesManagementClient({ roles }: Props) {
       className: "text-end",
       cell: (role) => (
         <div className="flex justify-center gap-2">
-          <Link href={`/dashboard/accessManagement/roles/${role.id}/edit`}>
-            <Button variant="ghost" size="sm">
-              <Pencil className="h-4 w-4" />
+          {can("access-management:update:roles") && (
+            <Link href={`/dashboard/accessManagement/roles/${role.id}/edit`}>
+              <Button variant="ghost" size="sm">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </Link>
+          )}
+          {can("access-management:delete:roles") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDeleteModal({ open: true, role })}
+            >
+              <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
-          </Link>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setDeleteModal({ open: true, role })}
-          >
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
+          )}
         </div>
       ),
     },
@@ -107,9 +119,12 @@ export function RolesManagementClient({ roles }: Props) {
     <div className=" rounded-lg border p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Search</h1>
-        <Link href="roles/add">
-          <Button>Add Role</Button>
-        </Link>
+
+        {can("access-management:create:roles") && (
+          <Link href="roles/add">
+            <Button>Add Role</Button>
+          </Link>
+        )}
       </div>
       <DataTable<Role> data={roles} columns={columns} keyField="id" />
 

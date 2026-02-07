@@ -2,8 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { UserFormValues } from "../schema";
+import { requirePermission } from "@/lib/auth";
 
 export async function editUserAction(input: UserFormValues) {
+  await requirePermission("access-management:update:users");
   if (!input.id) {
     throw new Error("User ID is required for editing");
   }

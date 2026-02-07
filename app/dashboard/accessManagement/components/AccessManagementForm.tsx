@@ -36,6 +36,7 @@ export default function AccessManagementForm({
   onSuccess: () => void;
   editUser?: UserData;
 }) {
+  const router = useRouter();
   const isEditMode = Boolean(editUser);
 
   const form = useForm<UserFormValues>({
@@ -54,13 +55,12 @@ export default function AccessManagementForm({
     formState: { isDirty, isSubmitting },
   } = form;
 
-  const router = useRouter();
   async function onSubmit(data: UserFormValues) {
     try {
       if (isEditMode && editUser) {
         await editUserAction({
           id: data.id!,
-          email: data.email,
+          // email: data.email,
           roleId: data.roleId,
           isActive: data.isActive,
         });
