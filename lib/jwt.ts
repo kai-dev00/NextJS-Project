@@ -1,40 +1,24 @@
-//Frist step in implementing JWT based authentication
-
-import jwt from "jsonwebtoken"; // not good in NEXTJS
 import { SignJWT, jwtVerify } from "jose";
 
 const ACCESS_SECRET = new TextEncoder().encode(
-  process.env.ACCESS_TOKEN_SECRET!
+  process.env.ACCESS_TOKEN_SECRET!,
 );
 const REFRESH_SECRET = new TextEncoder().encode(
-  process.env.REFRESH_TOKEN_SECRET!
+  process.env.REFRESH_TOKEN_SECRET!,
 );
 
 /**
  * Short-lived token used for authorization
  */
-// export async function signAccessToken(payload: {
-//   userId: string;
-//   role: string;
-// }) {
-//   return await new SignJWT(payload)
-//     .setProtectedHeader({ alg: "HS256" })
-//     .setIssuedAt()
-//     .setExpirationTime("15m")
-//     .sign(ACCESS_SECRET);
-// }
-
 export async function signAccessToken(payload: {
   userId: string;
-  role: string;
-  permissions?: string[];
+  roleId: string;
 }) {
   return new SignJWT({
-    role: payload.role,
-    permissions: payload.permissions ?? [],
+    roleId: payload.roleId,
   })
     .setProtectedHeader({ alg: "HS256" })
-    .setSubject(payload.userId) // 👈 standard
+    .setSubject(payload.userId)
     .setIssuedAt()
     .setExpirationTime("15m")
     .setIssuer("coffee-inventory")
@@ -45,14 +29,6 @@ export async function signAccessToken(payload: {
 /**
  * Long-lived token used only to refresh access token
  */
-// export async function signRefreshToken(payload: { userId: string }) {
-//   return await new SignJWT(payload)
-//     .setProtectedHeader({ alg: "HS256" })
-//     .setIssuedAt()
-//     .setExpirationTime("7d")
-//     .sign(REFRESH_SECRET);
-// }
-
 export async function signRefreshToken(payload: { userId: string }) {
   return new SignJWT({})
     .setProtectedHeader({ alg: "HS256" })
@@ -67,24 +43,14 @@ export async function signRefreshToken(payload: { userId: string }) {
 /**
  * Verify access token
  */
-// export async function verifyAccessToken(token: string) {
-//   const { payload } = await jwtVerify(token, ACCESS_SECRET);
-//   return payload as {
-//     userId: string;
-//     role: string;
-//     iat: number;
-//     exp: number;
-//   };
-// }
 export async function verifyAccessToken(token: string) {
   const { payload } = await jwtVerify(token, ACCESS_SECRET, {
     issuer: "coffee-inventory",
     audience: "web",
   });
-
   return {
     userId: payload.sub!,
-    role: payload.role as string,
+    roleId: payload.roleId as string,
     permissions: (payload.permissions as string[]) ?? [],
     iat: payload.iat!,
     exp: payload.exp!,
@@ -93,20 +59,11 @@ export async function verifyAccessToken(token: string) {
 /**
  * Verify refresh token
  */
-// export async function verifyRefreshToken(token: string) {
-//   const { payload } = await jwtVerify(token, REFRESH_SECRET);
-//   return payload as {
-//     userId: string;
-//     iat: number;
-//     exp: number;
-//   };
-// }
 export async function verifyRefreshToken(token: string) {
   const { payload } = await jwtVerify(token, REFRESH_SECRET, {
     issuer: "coffee-inventory",
     audience: "web",
   });
-
   return {
     userId: payload.sub!,
     iat: payload.iat!,

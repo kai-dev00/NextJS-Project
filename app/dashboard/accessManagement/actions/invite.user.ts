@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { UserFormValues } from "../schema";
 import { sendInviteEmail } from "@/lib/email";
-import { requirePermission } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth-guard";
 
 export async function inviteUserAction(input: UserFormValues) {
   await requirePermission("access-management:create:users");

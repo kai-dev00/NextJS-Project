@@ -6,18 +6,18 @@ import { useState } from "react";
 import { CustomInput } from "@/components/CustomInput";
 import { showToast } from "@/lib/toast";
 
+export type UserProps = {
+  id: string;
+  fullName?: string | null;
+  email?: string | null;
+  role?: string | null;
+  phoneNumber?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
 type Props = {
-  user: {
-    id: string;
-    fullName: string | null;
-    email: string;
-    role: string;
-    phoneNumber: string;
-    createdAt: string;
-  };
-  session: {
-    role: string;
-  };
+  user: UserProps;
 };
 
 type ChangePasswordForm = {
@@ -25,7 +25,7 @@ type ChangePasswordForm = {
   newPassword: string;
 };
 
-export default function ProfileClient({ user, session }: Props) {
+export default function ProfileClient({ user }: Props) {
   const {
     register,
     handleSubmit,
@@ -80,13 +80,32 @@ export default function ProfileClient({ user, session }: Props) {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InfoRow label="Role" value={user.role} />
+          <InfoRow label="Role" value={user.role ?? "Unknown"} />
           <InfoRow
             label="Joined"
-            value={new Date(user.createdAt).toLocaleDateString()}
+            value={
+              user.createdAt
+                ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : null
+            }
           />
-          <InfoRow label="Role" value={session.role} />
-          <InfoRow label="Phone Number" value={user.phoneNumber} />
+          <InfoRow label="Phone Number" value={user.phoneNumber ?? ""} />
+          <InfoRow
+            label="Last Updated"
+            value={
+              user.updatedAt
+                ? new Date(user.updatedAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : null
+            }
+          />
         </div>
       </div>
 
@@ -134,7 +153,13 @@ export default function ProfileClient({ user, session }: Props) {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string | null;
+  value: string | null;
+}) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>

@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { CategoryFormValues } from "./client";
+import { CategoryFormValues } from "./CategoryClient";
 export async function createCategory(values: CategoryFormValues) {
   await prisma.category.create({
     data: {

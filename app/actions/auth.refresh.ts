@@ -27,7 +27,7 @@ export async function refreshAction() {
   });
 
   const session = sessions.find((s) =>
-    bcrypt.compareSync(refreshToken, s.refreshTokenHash)
+    bcrypt.compareSync(refreshToken, s.refreshTokenHash),
   );
 
   if (!session) throw new Error("Invalid session");
@@ -38,10 +38,17 @@ export async function refreshAction() {
     data: { revoked: true },
   });
 
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { roleId: true },
+  });
+
+  if (!user) throw new Error("User not found");
+
   // Create new tokens (both need await now!)
   const accessToken = await signAccessToken({
     userId: payload.userId,
-    role: "USER", // optionally fetch role
+    roleId: user.roleId,
   });
 
   const newRefreshToken = await signRefreshToken({

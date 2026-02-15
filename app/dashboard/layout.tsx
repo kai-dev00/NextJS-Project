@@ -1,6 +1,4 @@
-// app/dashboard/layout.tsx (SERVER component)
 import { getCurrentUserWithDetails } from "@/lib/auth";
-import LogoutButton from "../../components/LogoutButton";
 import Sidebar from "./sidebar";
 import { AuthProvider } from "../(auth)/AuthProvider";
 
@@ -10,8 +8,6 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUserWithDetails();
-
-  console.log("Current user in layout:", user);
   const sidebarUser = user
     ? {
         fullName: user.fullName ?? null,
@@ -23,7 +19,6 @@ export default async function DashboardLayout({
     <AuthProvider
       value={{
         role: user?.role?.name ?? "GUEST",
-        permissions: user?.permissions ?? [],
       }}
     >
       <div className="flex h-screen overflow-hidden">

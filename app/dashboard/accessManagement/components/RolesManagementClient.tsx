@@ -4,14 +4,14 @@ import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { DataTable, Column } from "@/components/DataTable";
 import { CustomModal } from "@/components/CustomModal";
 import { deleteRoleAction } from "../actions/roles";
 import { showToast } from "@/lib/toast";
-import { usePermission } from "@/app/(auth)/AuthProvider";
 import NoPermission from "../../no-permission";
+import { usePermission } from "@/lib/permissions/usePermission";
+import { Permission } from "@/lib/types";
 
 type Role = {
   id: string;
@@ -23,28 +23,22 @@ type Role = {
 
 type Props = {
   roles: Role[];
+  permissions: Permission[];
 };
 
-export function RolesManagementClient({ roles }: Props) {
-  const { can } = usePermission();
-  if (!can("access-management:read:roles")) {
-    return <NoPermission />;
-  }
+export function RolesManagementClient({ roles, permissions }: Props) {
+  const { can } = usePermission(permissions);
+  if (!can("access-management:read:roles")) return <NoPermission />;
 
   const router = useRouter();
-
   const [deleteModal, setDeleteModal] = useState<{
     open: boolean;
     role: Role | null;
   }>({ open: false, role: null });
-
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    if (!can("access-management:delete:roles")) return;
-
     if (!deleteModal.role) return;
-
     try {
       setIsDeleting(true);
       await deleteRoleAction(deleteModal.role.id);
@@ -117,16 +111,18 @@ export function RolesManagementClient({ roles }: Props) {
 
   return (
     <div className=" rounded-lg border p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Search</h1>
-
-        {can("access-management:create:roles") && (
-          <Link href="roles/add">
-            <Button>Add Role</Button>
-          </Link>
-        )}
-      </div>
-      <DataTable<Role> data={roles} columns={columns} keyField="id" />
+      <DataTable<Role>
+        data={roles}
+        columns={columns}
+        keyField="id"
+        headerActions={
+          can("access-management:create:roles") && (
+            <Link href="roles/add">
+              <Button>Add Role</Button>
+            </Link>
+          )
+        }
+      />
 
       <CustomModal
         open={deleteModal.open}
@@ -161,7 +157,7 @@ export function RolesManagementClient({ roles }: Props) {
         {deleteModal.role && deleteModal.role._count.users > 0 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-sm text-yellow-800">
-              ⚠️ Warning: This role has {deleteModal.role._count.users} user(s)
+              Warning: This role has {deleteModal.role._count.users} user(s)
               assigned. Deletion will fail unless users are reassigned first.
             </p>
           </div>

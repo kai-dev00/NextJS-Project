@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Category } from "@/app/generated/prisma/browser";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
-import { usePermission } from "@/app/(auth)/AuthProvider";
 import NoPermission from "../no-permission";
 import CategoryTable from "./components/categoryTable";
 import CategoryForm from "./components/categoryForm";
 import { z } from "zod";
+import { Permission } from "@/lib/types";
+import { usePermission } from "@/lib/permissions/usePermission";
 
 export const categorySchema = z.object({
   name: z.string().min(1, "Category name is required").max(50),
@@ -21,35 +22,24 @@ export const categorySchema = z.object({
 });
 export type CategoryFormValues = z.infer<typeof categorySchema>;
 
-export default function CategoryClient({
-  categories,
-}: {
+type Props = {
   categories: Category[];
-}) {
-  const { can, permissions } = usePermission();
+  permissions: Permission[];
+};
 
-  console.log("User permissions:", permissions);
-  console.log(
-    "User permissions:",
-    can("category:read"),
-    can("category:create"),
-    can("category:update"),
-    can("category:delete"),
-  );
-
+export default function CategoryClient({ categories, permissions }: Props) {
+  const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
 
   const openCreate = () => {
-    if (!can("category:create")) return;
     setEditing(null);
     setOpen(true);
   };
 
   const openEdit = (category: Category) => {
-    if (!can("category:update")) return;
     setEditing(category);
     setOpen(true);
   };
@@ -69,7 +59,11 @@ export default function CategoryClient({
         )}
       </div>
 
-      <CategoryTable categories={categories} onEdit={openEdit} />
+      <CategoryTable
+        categories={categories}
+        onEdit={openEdit}
+        permissions={permissions}
+      />
 
       <CustomModal
         open={open}

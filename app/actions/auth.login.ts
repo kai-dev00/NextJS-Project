@@ -31,14 +31,9 @@ export async function loginAction(data: LoginFormValues) {
     throw new Error("Invalid email or password");
   }
 
-  const permissions = user.role.permissions.map(
-    (p) => `${p.module}:${p.action}${p.submodule ? `:${p.submodule}` : ""}`,
-  );
-
   const accessToken = await signAccessToken({
     userId: user.id,
-    role: user.role.name,
-    permissions,
+    roleId: user.roleId,
   });
 
   const refreshToken = await signRefreshToken({

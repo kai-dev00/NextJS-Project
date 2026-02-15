@@ -6,13 +6,11 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { CustomInput } from "@/components/CustomInput";
 import { useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { createRoleAction, updateRoleAction } from "../actions/roles";
 import Link from "next/link";
 import { PermissionTable } from "./PermissionTable";
 import { showToast } from "@/lib/toast";
-import { usePermission } from "@/app/(auth)/AuthProvider";
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
@@ -42,11 +40,8 @@ type Props = {
 };
 
 export function RoleForm({ role, permissions }: Props) {
-  const { can } = usePermission();
-
   const router = useRouter();
   const isEdit = !!role;
-
   const {
     register,
     handleSubmit,
@@ -67,14 +62,12 @@ export function RoleForm({ role, permissions }: Props) {
   async function onSubmit(data: RoleFormValues) {
     try {
       if (isEdit) {
-        if (!can("access-management:update:roles")) return;
         await updateRoleAction(role!.id, data);
         showToast.success(
           "Role updated",
-          "The role has been successfully updated.",
+          "The role has been successfully updated. Please relogin to apply changes.",
         );
       } else {
-        if (!can("access-management:create:roles")) return;
         await createRoleAction(data);
         showToast.success(
           "Role created",
@@ -91,8 +84,6 @@ export function RoleForm({ role, permissions }: Props) {
       console.error(err);
     }
   }
-
-  //
 
   function togglePermission(id: string) {
     setValue(

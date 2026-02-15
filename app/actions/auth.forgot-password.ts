@@ -15,7 +15,6 @@ export async function forgotPasswordAction(data: ForgotPasswordFormValues) {
 
   // Security: don't reveal if user exists
   if (!user) {
-    console.log("No user found for email:", email);
     return;
   }
   const token = randomBytes(32).toString("hex");

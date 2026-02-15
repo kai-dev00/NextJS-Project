@@ -4,29 +4,33 @@ import { Category } from "@/app/generated/prisma/browser";
 import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-import { usePermission } from "@/app/(auth)/AuthProvider";
+// import { usePermission } from "@/app/(auth)/AuthProvider";
 import { deleteCategory } from "../actions";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { CustomModal } from "@/components/CustomModal";
 import { useState } from "react";
+import { Permission } from "@/lib/types";
+import NoPermission from "../../no-permission";
+import { usePermission } from "@/lib/permissions/usePermission";
+
+type Props = {
+  categories: Category[];
+  onEdit: (category: Category) => void;
+  permissions: Permission[];
+};
 
 export default function CategoryTable({
   categories,
   onEdit,
-}: {
-  categories: Category[];
-  onEdit: (category: Category) => void;
-}) {
+  permissions,
+}: Props) {
+  const { can } = usePermission(permissions);
+  if (!can("category:read")) return <NoPermission />;
   const [deleteUser, setDeleteUser] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const { can } = usePermission();
   const router = useRouter();
-
   const handleDelete = async () => {
-    if (!can("category:delete")) return;
-
     if (!deleteUser) return;
     setDeleting(true);
     try {

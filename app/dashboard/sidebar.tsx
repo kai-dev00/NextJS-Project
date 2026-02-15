@@ -3,7 +3,6 @@
 import LogoutButton from "@/components/LogoutButton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePermission } from "../(auth)/AuthProvider";
 
 type SidebarUser = {
   fullName: string | null;

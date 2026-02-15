@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import AccessManagementClient from "../components/AccessManagementClient";
+import { getCurrentUserWithDetails } from "@/lib/auth";
 
 export type UserRow = {
   id: string;
@@ -21,6 +22,8 @@ export type RoleOption = {
 };
 //server component
 export default async function AccessManagement() {
+  const permissionData = await getCurrentUserWithDetails();
+  const permissions = permissionData?.role?.permissions || [];
   const users = await prisma.user.findMany({
     select: {
       id: true,
@@ -95,5 +98,11 @@ export default async function AccessManagement() {
     orderBy: { name: "asc" },
   });
 
-  return <AccessManagementClient users={rows} roles={roles} />;
+  return (
+    <AccessManagementClient
+      users={rows}
+      roles={roles}
+      permissions={permissions}
+    />
+  );
 }

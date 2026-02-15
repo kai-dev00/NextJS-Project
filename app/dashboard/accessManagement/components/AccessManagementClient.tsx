@@ -10,8 +10,9 @@ import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { RoleOption, UserRow } from "../users/page";
 import { Pencil, Trash2 } from "lucide-react";
-import { usePermission } from "@/app/(auth)/AuthProvider";
 import NoPermission from "../../no-permission";
+import { Permission } from "@/lib/types";
+import { usePermission } from "@/lib/permissions/usePermission";
 
 type EditUserData = {
   id: string;
@@ -25,14 +26,14 @@ type EditUserData = {
 export default function AccessManagementClient({
   users,
   roles,
+  permissions,
 }: {
   users: UserRow[];
   roles: RoleOption[];
+  permissions: Permission[];
 }) {
-  const { can, permissions } = usePermission();
-  if (!can("access-management:read:users")) {
-    return <NoPermission />;
-  }
+  const { can } = usePermission(permissions);
+  if (!can("access-management:read:users")) return <NoPermission />;
 
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState<EditUserData | undefined>(undefined);
@@ -41,7 +42,6 @@ export default function AccessManagementClient({
   const router = useRouter();
 
   const handleEdit = (user: UserRow) => {
-    if (!can("access-management:update:users")) return;
     const role = roles.find((r) => r.name === user.role);
     setEditUser({
       id: user.id,
@@ -56,25 +56,26 @@ export default function AccessManagementClient({
   };
 
   const handleAddNew = () => {
-    if (!can("access-management:create:users")) return;
-
     setEditUser(undefined);
     setOpen(true);
   };
 
   const handleDelete = async () => {
-    if (!can("access-management:delete:users")) return;
-
     if (!deleteUser) return;
     setDeleting(true);
     try {
       await deleteAccessAction(deleteUser.id, deleteUser.source);
-      showToast.warning("User deleted", "The user has been removed");
+      showToast.success("User deleted", "The user has been removed");
       router.refresh();
       setDeleteUser(null);
-    } catch (err) {
-      showToast.error("Delete failed", "Unable to delete user");
+    } catch (err: unknown) {
+      let message = "Unable to delete user";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      showToast.error("Delete failed", message);
       console.error(err);
+      setDeleteUser(null);
     } finally {
       setDeleting(false);
     }
@@ -148,16 +149,16 @@ export default function AccessManagementClient({
 
   return (
     <div className=" rounded-lg border p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Search</h1>
-
-        {can("access-management:create:users") && (
-          <Button onClick={handleAddNew}>Add User</Button>
-        )}
-      </div>
-
-      <DataTable data={users} columns={columns} keyField="id" />
-
+      <DataTable
+        data={users}
+        columns={columns}
+        keyField="id"
+        headerActions={
+          can("access-management:create:users") && (
+            <Button onClick={handleAddNew}>Add User</Button>
+          )
+        }
+      />
       <CustomModal
         open={open}
         onOpenChange={setOpen}
@@ -175,12 +176,10 @@ export default function AccessManagementClient({
           editUser={editUser}
         />
       </CustomModal>
-
       <CustomModal
         open={!!deleteUser}
         onOpenChange={(v) => !v && setDeleteUser(null)}
         title="Delete User"
-        description="This action cannot be undone. This will permanently delete the user."
       >
         <div className="space-y-4">
           <p className="text-sm">

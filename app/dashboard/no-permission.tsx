@@ -1,4 +1,3 @@
-// components/NoPermission.tsx
 "use client";
 
 export default function NoPermission({

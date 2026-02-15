@@ -1,6 +1,9 @@
-import { requirePermission } from "@/lib/auth";
-import InventoryClient from "./client";
+import { getCurrentUserWithDetails } from "@/lib/auth";
+import InventoryClient from "./InventoryClient";
 
 export default async function InventoryPage() {
-  return <InventoryClient />;
+  const permissionData = await getCurrentUserWithDetails();
+  const permissions = permissionData?.role?.permissions || [];
+
+  return <InventoryClient permissions={permissions} />;
 }

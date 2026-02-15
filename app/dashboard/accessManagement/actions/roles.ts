@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
@@ -66,6 +67,14 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
 }
 
 export async function deleteRoleAction(id: string) {
+  const currentUser = await getCurrentUser();
+  const currentUserRoleId = currentUser?.roleId;
+
+  if (id === currentUserRoleId) {
+    throw new Error("You cannot delete role that has been assigned to you.");
+  }
+
+  //You cant delete role that any users already assigned
   const usersCount = await prisma.user.count({
     where: { roleId: id },
   });

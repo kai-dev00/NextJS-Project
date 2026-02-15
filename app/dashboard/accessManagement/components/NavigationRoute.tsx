@@ -9,16 +9,13 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { usePermission } from "@/app/(auth)/AuthProvider";
 
 export function NavigationMenuDemo() {
   const pathname = usePathname();
-  const { can, permissions } = usePermission();
 
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        {/* {can("access-management:read:users") && ( */}
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Link
@@ -34,9 +31,7 @@ export function NavigationMenuDemo() {
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
-        {/* )} */}
 
-        {/* {can("access-management:read:roles") && ( */}
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Link
@@ -52,7 +47,6 @@ export function NavigationMenuDemo() {
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
-        {/* )} */}
       </NavigationMenuList>
     </NavigationMenu>
   );
