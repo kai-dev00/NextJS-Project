@@ -75,7 +75,7 @@ export function DataTable<T extends Record<string, any>>({
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="border p-1 rounded w-64"
+          className="border px-4 py-1 rounded w-64 text-sm"
         />
         {headerActions && <div>{headerActions}</div>}
       </div>
