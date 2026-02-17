@@ -50,19 +50,16 @@ export default function CategoryClient({ categories, permissions }: Props) {
   };
 
   return (
-    <div className="p-6 space-y-4 border rounded-lg">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Categories</h1>
-
-        {can("category:create") && (
-          <Button onClick={openCreate}>Add Category</Button>
-        )}
-      </div>
-
+    <div className="p-2 space-y-4 ">
       <CategoryTable
         categories={categories}
         onEdit={openEdit}
         permissions={permissions}
+        headerActions={
+          can("category:create") && (
+            <Button onClick={openCreate}>Add Category</Button>
+          )
+        }
       />
 
       <CustomModal

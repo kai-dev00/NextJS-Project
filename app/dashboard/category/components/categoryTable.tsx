@@ -18,12 +18,14 @@ type Props = {
   categories: Category[];
   onEdit: (category: Category) => void;
   permissions: Permission[];
+  headerActions?: React.ReactNode;
 };
 
 export default function CategoryTable({
   categories,
   onEdit,
   permissions,
+  headerActions,
 }: Props) {
   const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
@@ -90,7 +92,12 @@ export default function CategoryTable({
 
   return (
     <>
-      <DataTable data={categories} columns={columns} keyField="id" />
+      <DataTable
+        data={categories}
+        columns={columns}
+        keyField="id"
+        headerActions={headerActions}
+      />
       <CustomModal
         open={!!deleteUser}
         onOpenChange={(v) => !v && setDeleteUser(null)}
