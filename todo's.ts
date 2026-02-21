@@ -10,3 +10,6 @@
 //sidebar animation polishing --done
 //add primary and secondary colors to the theme
 //add text labbel variants
+
+//2/16/2026
+//fix mainmodule in the logger of accessmanagement()wag mo gamitin yung model kasi di ko magamit yung accessmanagement kasi di siya existing as schema name  --not fixed yet
