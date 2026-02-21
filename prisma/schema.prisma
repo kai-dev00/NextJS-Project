@@ -51,7 +51,8 @@ model User {
 
   sessions  Session[]
   passwordResets PasswordReset[]
-  
+  actionLogs ActionLog[] 
+
   role      Role     @relation(fields: [roleId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -118,3 +119,23 @@ model PasswordReset {
   @@index([userId])
 }
 
+
+
+model ActionLog {
+  id        String   @id @default(uuid())
+  userId    String?           // nullable if SYSTEM action
+  module     String            // e.g., "Inventory"
+  submodule  String?           // e.g., "Milk", "Syrups"
+  action    String            // "create", "update", "delete"
+  recordId  String?           
+  before    Json?             
+  after     Json?             
+  createdAt DateTime @default(now())
+
+  user      User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([module])
+  @@index([submodule])
+  @@index([action])
+}
