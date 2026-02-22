@@ -15,10 +15,7 @@ export const categorySchema = z.object({
   name: z.string().min(1, "Category name is required").max(50),
   description: z.string().optional(),
   icon: z.string().max(5).optional(),
-  color: z
-    .string()
-    // .regex(/^#([0-9A-Fa-f]{3}){1,2}$/, "Invalid hex color")
-    .optional(),
+  color: z.string().optional(),
 });
 export type CategoryFormValues = z.infer<typeof categorySchema>;
 
@@ -50,7 +47,7 @@ export default function CategoryClient({ categories, permissions }: Props) {
   };
 
   return (
-    <div className="p-2 space-y-4 ">
+    <div className=" rounded-lg border p-6 space-y-4">
       <CategoryTable
         categories={categories}
         onEdit={openEdit}

@@ -144,7 +144,7 @@ export default function DashboardSidebar({
                 <>
                   <button
                     onClick={() => isExpanded && toggleMenu(item.label)}
-                    className={`flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors w-full ${
+                    className={`flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors w-full cursor-pointer ${
                       isActive
                         ? "bg-white text-black"
                         : "text-gray-300 hover:bg-gray-800"
@@ -162,7 +162,7 @@ export default function DashboardSidebar({
                       {item.label}
                     </span>
                     <ChevronRight
-                      className={`h-4 w-4 shrink-0 transition-transform duration-300 ${
+                      className={`h-4 w-4 shrink-0 transition-transform duration-300  ${
                         !isExpanded
                           ? "opacity-0 w-0 overflow-hidden"
                           : isOpen

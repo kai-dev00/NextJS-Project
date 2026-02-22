@@ -19,6 +19,7 @@ export async function createCategory(values: CategoryFormValues) {
       description: values.description,
       icon: values.icon,
       color: values.color,
+      createdBy: userId, // use id or name?
     },
     {
       userId,
@@ -60,6 +61,7 @@ export async function updateCategory(id: string, values: CategoryFormValues) {
       icon: values.icon,
       color: values.color,
       description: values.description,
+      updatedBy: userId, // use id or name?
     },
     {
       userId,

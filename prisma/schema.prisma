@@ -89,36 +89,17 @@ model Session {
   @@index([userId])
 }
 
-
-model Category {
-  // id          Int      @id @default(autoincrement())
-  id          String  @id @default(cuid())
-
-  name        String   @unique
-  description String?
-  icon        String?  // emoji
-  color       String?  // hex color 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt  //nullable
-  
-  // items       Item[]   
-}
-
-
 model PasswordReset {
   id        String   @id @default(uuid())
   userId    String
   token     String   @unique
   expiresAt DateTime
   usedAt    DateTime?
-
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
-
   @@index([userId])
 }
-
 
 
 model ActionLog {
@@ -133,9 +114,62 @@ model ActionLog {
   createdAt DateTime @default(now())
 
   user      User? @relation(fields: [userId], references: [id])
-
   @@index([userId])
   @@index([module])
   @@index([submodule])
   @@index([action])
+}
+
+
+//Modules
+model Category {
+  id          String  @id @default(cuid())
+
+  name        String   @unique
+  description String?
+  icon        String?  // emoji
+  color       String?  // hex color 
+  createdAt   DateTime @default(now())
+  createdBy   String?  // nullable for system-created categories
+  updatedAt   DateTime @updatedAt  //nullable
+  updatedBy   String?  // nullable for system-updated categories
+
+  totalPrice   Float    @default(0) 
+  inventories       Inventory[]   
+}
+
+enum InventoryStatus {
+  in_stock
+  low_stock
+  out_of_stock
+  warning
+  discontinued
+}
+enum InventoryUnit {
+  PCS
+  KG
+  G
+  L
+  ML
+}
+
+model Inventory {
+  id          String  @id @default(cuid())
+  name        String   @unique
+  description String?
+  categoryId  String
+  quantity    Decimal      @default(0)
+  minimumStock Int      @default(0)
+  unitPrice   Decimal    @default(0)
+  status      InventoryStatus?   // in stock, low stock, critical, out of stock
+  unit        InventoryUnit
+
+  createdAt   DateTime @default(now())
+  createdBy   String?  // nullable for system-created categories
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?  // nullable for system-updated categories
+
+
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) //delete also its inventories when category is deleted
+  @@index([categoryId])
 }
