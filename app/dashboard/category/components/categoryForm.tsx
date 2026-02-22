@@ -37,10 +37,10 @@ export default function CategoryForm({
     try {
       if (category) {
         await updateCategory(category.id, values);
-        showToast.success("Category updated");
+        showToast.success("Category successfully updated");
       } else {
         await createCategory(values);
-        showToast.success("Category created");
+        showToast.success("Category successfully created");
       }
 
       router.refresh();

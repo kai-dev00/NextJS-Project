@@ -127,7 +127,7 @@ export default function AccessManagementClient({
       header: "",
       className: "text-right",
       cell: (row) => (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center">
           {can("access-management:update:users") && (
             <Button size="sm" variant="ghost" onClick={() => handleEdit(row)}>
               <Pencil className="h-4 w-4" />
@@ -139,7 +139,7 @@ export default function AccessManagementClient({
               variant="ghost"
               onClick={() => setDeleteUser(row)}
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           )}
         </div>

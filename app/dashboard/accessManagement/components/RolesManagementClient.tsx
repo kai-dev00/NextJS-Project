@@ -87,7 +87,7 @@ export function RolesManagementClient({ roles, permissions }: Props) {
       header: "",
       className: "text-end",
       cell: (role) => (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center">
           {can("access-management:update:roles") && (
             <Link href={`/dashboard/accessManagement/roles/${role.id}/edit`}>
               <Button variant="ghost" size="sm">
@@ -101,7 +101,7 @@ export function RolesManagementClient({ roles, permissions }: Props) {
               size="sm"
               onClick={() => setDeleteModal({ open: true, role })}
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           )}
         </div>
