@@ -13,3 +13,11 @@
 
 //2/16/2026
 //fix mainmodule in the logger of accessmanagement()wag mo gamitin yung model kasi di ko magamit yung accessmanagement kasi di siya existing as schema name  --not fixed yet
+
+//2/17/2026
+//change the float into decimal in the category total price
+//enhance proifile page
+//enhance table component ui
+
+//3/1/2026
+//table enhxancements (search) yung galing sa may recent activity

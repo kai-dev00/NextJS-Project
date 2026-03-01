@@ -19,6 +19,23 @@ export async function getCurrentUser() {
   }
 }
 
+//used in actions
+export async function getCurrentUserWithName() {
+  const session = await getCurrentUser();
+  if (!session) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { fullName: true },
+  });
+
+  return {
+    userId: session.userId,
+    roleId: session.roleId,
+    fullName: user?.fullName ?? null,
+  };
+}
+
 export async function getCurrentUserWithDetails() {
   const session = await getCurrentUser();
   if (!session) return null;

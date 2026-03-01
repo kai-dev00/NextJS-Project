@@ -69,13 +69,13 @@ export function InventoryViewModal({ inventory, open, onOpenChange }: Props) {
           <div className="flex justify-between">
             <span>Created by</span>
             <span className="text-foreground">
-              {inventory.createdBy ?? "—"} · {formatDate(inventory.createdAt)}
+              {inventory.createdBy} · {formatDate(inventory.createdAt)}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Last updated by</span>
             <span className="text-foreground">
-              {inventory.updatedBy ?? "—"} · {formatDate(inventory.updatedAt)}
+              {inventory.updatedBy} · {formatDate(inventory.updatedAt)}
             </span>
           </div>
         </div>

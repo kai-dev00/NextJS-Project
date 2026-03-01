@@ -24,9 +24,14 @@ type Role = {
 type Props = {
   roles: Role[];
   permissions: Permission[];
+  defaultSearch?: string;
 };
 
-export function RolesManagementClient({ roles, permissions }: Props) {
+export function RolesManagementClient({
+  roles,
+  permissions,
+  defaultSearch,
+}: Props) {
   const { can } = usePermission(permissions);
   if (!can("access-management:read:roles")) return <NoPermission />;
 
@@ -113,6 +118,7 @@ export function RolesManagementClient({ roles, permissions }: Props) {
     <div className=" rounded-lg border p-6 space-y-4">
       <DataTable<Role>
         data={roles}
+        defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
         headerActions={

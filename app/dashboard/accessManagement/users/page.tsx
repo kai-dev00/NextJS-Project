@@ -12,6 +12,9 @@ export type UserRow = {
   isActive: boolean;
   emailVerified: boolean;
   createdAt: Date;
+  createdBy?: string;
+  updatedBy?: string;
+  updatedAt?: Date;
   status: "ACTIVE" | "PENDING" | "EXPIRED";
   source: "USER" | "INVITE";
 };
@@ -21,7 +24,12 @@ export type RoleOption = {
   name: string;
 };
 //server component
-export default async function AccessManagement() {
+export default async function AccessManagement({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const { search } = await searchParams;
   const permissionData = await getCurrentUserWithDetails();
   const permissions = permissionData?.role?.permissions || [];
   const users = await prisma.user.findMany({
@@ -34,6 +42,9 @@ export default async function AccessManagement() {
       isActive: true,
       emailVerifiedAt: true,
       createdAt: true,
+      createdBy: true,
+      updatedBy: true,
+      updatedAt: true,
       role: {
         select: {
           name: true,
@@ -52,6 +63,9 @@ export default async function AccessManagement() {
     isActive: u.isActive,
     emailVerified: Boolean(u.emailVerifiedAt),
     createdAt: u.createdAt,
+    createdBy: u.createdBy ?? undefined,
+    updatedBy: u.updatedBy ?? undefined,
+    updatedAt: u.updatedAt ?? undefined,
     status: "ACTIVE",
     source: "USER",
   }));
@@ -66,6 +80,9 @@ export default async function AccessManagement() {
       expiresAt: true,
       usedAt: true,
       createdAt: true,
+      createdBy: true,
+      updatedBy: true,
+      updatedAt: true,
       role: {
         select: { name: true },
       },
@@ -82,6 +99,9 @@ export default async function AccessManagement() {
     isActive: false,
     emailVerified: false,
     createdAt: i.createdAt,
+    createdBy: i.createdBy ?? undefined,
+    updatedBy: i.updatedBy ?? undefined,
+    updatedAt: i.updatedAt ?? undefined,
     status: i.usedAt ? "ACTIVE" : i.expiresAt < now ? "EXPIRED" : "PENDING",
     source: "INVITE",
   }));
@@ -103,6 +123,7 @@ export default async function AccessManagement() {
       users={rows}
       roles={roles}
       permissions={permissions}
+      defaultSearch={search ?? ""}
     />
   );
 }

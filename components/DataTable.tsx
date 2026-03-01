@@ -43,6 +43,8 @@ type DataTableProps<T> = {
   pageSize?: number;
   headerActions?: React.ReactNode;
   filters?: FilterConfig[];
+  defaultSearch?: string;
+  highlightId?: string;
 };
 
 export function DataTable<T extends Record<string, any>>({
@@ -52,8 +54,12 @@ export function DataTable<T extends Record<string, any>>({
   pageSize = 10,
   headerActions,
   filters = [],
+  defaultSearch = "",
+  highlightId = "",
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
+  const [idFilter, setIdFilter] = useState(defaultSearch);
+
   const [currentPage, setCurrentPage] = useState(1);
 
   //
@@ -63,7 +69,9 @@ export function DataTable<T extends Record<string, any>>({
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const filteredData = useMemo(() => {
     let result = data;
-
+    if (idFilter) {
+      result = result.filter((row) => String(row["id"] ?? "") === idFilter);
+    }
     if (search) {
       const lowerSearch = search.toLowerCase();
       result = result.filter((row) =>
@@ -82,7 +90,7 @@ export function DataTable<T extends Record<string, any>>({
     });
 
     return result;
-  }, [search, data, columns, activeFilters]);
+  }, [search, data, columns, activeFilters, idFilter]);
   // Filtered data based on search
   // const filteredData = useMemo(() => {
   //   if (!search) return data;
@@ -118,6 +126,7 @@ export function DataTable<T extends Record<string, any>>({
             onChange={(e) => {
               setSearch(e.target.value);
               setCurrentPage(1);
+              setIdFilter("");
             }}
             className="border px-4 py-1 rounded w-64 text-sm"
           />
@@ -220,42 +229,43 @@ export function DataTable<T extends Record<string, any>>({
         </TableHeader>
 
         <TableBody>
-          {paginatedData.map((row) => (
-            <TableRow key={String(row[keyField])} className="h-10">
-              {columns.map((col) => (
-                <TableCell key={String(col.key)} className={col.className}>
-                  {col.cell
-                    ? col.cell(row)
-                    : String(row[col.key as keyof T] ?? "")}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-
-          {/* If no data is available, show a message */}
-          {paginatedData.length === 0 && (
+          {paginatedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="text-center py-4">
-                No data available.
+              <TableCell colSpan={columns.length}>
+                <div className="h-[480px] flex items-center justify-center text-sm text-muted-foreground">
+                  No data available.
+                </div>
               </TableCell>
             </TableRow>
-          )}
-
-          {Array.from({ length: 10 - paginatedData.length }).map((_, i) => (
-            <TableRow key={`empty-${i}`} className="h-12">
-              {columns.map((col, j) => (
-                <TableCell key={j}>&nbsp;</TableCell>
+          ) : (
+            <>
+              {paginatedData.map((row) => (
+                <TableRow key={String(row[keyField])} className="h-10">
+                  {columns.map((col) => (
+                    <TableCell key={String(col.key)} className={col.className}>
+                      {col.cell
+                        ? col.cell(row)
+                        : String(row[col.key as keyof T] ?? "")}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
+
+              {Array.from({ length: 11 - paginatedData.length }).map((_, i) => (
+                <TableRow key={`empty-${i}`} className="h-12">
+                  {columns.map((col, j) => (
+                    <TableCell key={j}>&nbsp;</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </>
+          )}
         </TableBody>
       </Table>
 
       {/* Pagination */}
-      {/* Pagination */}
 
       <div className="mt-3 flex justify-end items-center space-x-2 text-sm">
-        {/* 👈 replace page number buttons with this */}
         <span className="px-2 text-muted-foreground">
           Page {currentPage} of {totalPages || 1}
         </span>

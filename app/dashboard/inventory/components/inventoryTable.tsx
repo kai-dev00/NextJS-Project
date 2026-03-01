@@ -16,6 +16,8 @@ import { deleteInventory } from "../actions";
 import { InventoryStatusBadge } from "./inventoryStatusBadge";
 import { InventoryViewModal } from "./inventoryViewModal";
 import { Category, InventoryStatus } from "@/app/generated/prisma/browser";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { TruncatedCell } from "../../utils/descriptionHelper";
 
 type Props = {
   inventories: InventoryWithCategory[];
@@ -23,6 +25,7 @@ type Props = {
   onEdit: (inventory: InventoryWithCategory) => void;
   permissions: Permission[];
   headerActions?: React.ReactNode;
+  defaultSearch?: string;
 };
 
 export default function InventoryTable({
@@ -31,6 +34,7 @@ export default function InventoryTable({
   onEdit,
   permissions,
   headerActions,
+  defaultSearch,
 }: Props) {
   const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
@@ -70,12 +74,16 @@ export default function InventoryTable({
     {
       key: "category",
       header: "Category",
-      cell: (row) => row.category?.name ?? "—",
+      cell: (row) => row.category?.name,
     },
     {
       key: "description",
       header: "Description",
-      cell: (row) => row.description ?? "—",
+      className: "max-w-[150px]",
+      cell: (row) => {
+        if (!row.description) return <span>N/A</span>;
+        return <TruncatedCell text={row.description} />;
+      },
     },
     {
       key: "quantity",
@@ -155,6 +163,7 @@ export default function InventoryTable({
     <>
       <DataTable
         data={inventories}
+        defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
         headerActions={headerActions}

@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
+import { Textarea } from "./ui/textarea";
 
 type CustomInputProps = {
   label: string;
@@ -14,6 +15,7 @@ type CustomInputProps = {
   className?: string;
   prefix?: string;
   suffix?: string;
+  multiline?: boolean;
 } & React.ComponentProps<typeof Input>;
 
 export function CustomInput({
@@ -25,6 +27,7 @@ export function CustomInput({
   prefix,
   suffix,
   type,
+  multiline = false,
   ...props
 }: CustomInputProps) {
   const inputId = id ?? props.name;
@@ -53,41 +56,56 @@ export function CustomInput({
       /> */}
 
       <div className="relative">
-        {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none z-10">
-            {prefix}
-          </span>
-        )}
-        <Input
-          id={inputId}
-          type={isPassword ? (showPassword ? "text" : "password") : type}
-          aria-invalid={Boolean(error)}
-          className={cn(
-            prefix && "pl-7",
-            isPassword && "pr-10",
-            error && "border-destructive focus-visible:ring-destructive",
-            "focus-visible:ring-0 focus-visible:ring-offset-0",
-            className,
-          )}
-          {...props}
-        />
-        {isPassword && (
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
+        {multiline ? (
+          <Textarea
+            id={inputId}
+            aria-invalid={Boolean(error)}
+            className={cn(
+              error && "border-destructive focus-visible:ring-destructive",
+              "focus-visible:ring-0 focus-visible:ring-offset-0",
+              className,
             )}
-          </button>
-        )}
-        {suffix && !isPassword && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none z-10">
-            {suffix}
-          </span>
+            {...(props as any)}
+          />
+        ) : (
+          <>
+            {prefix && (
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none z-10">
+                {prefix}
+              </span>
+            )}
+            <Input
+              id={inputId}
+              type={isPassword ? (showPassword ? "text" : "password") : type}
+              aria-invalid={Boolean(error)}
+              className={cn(
+                prefix && "pl-7",
+                isPassword && "pr-10",
+                error && "border-destructive focus-visible:ring-destructive",
+                "focus-visible:ring-0 focus-visible:ring-offset-0",
+                className,
+              )}
+              {...props}
+            />
+            {isPassword && (
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            )}
+            {suffix && !isPassword && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none z-10">
+                {suffix}
+              </span>
+            )}
+          </>
         )}
       </div>
     </div>

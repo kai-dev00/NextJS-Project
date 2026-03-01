@@ -115,14 +115,12 @@ export function RoleForm({ role, permissions }: Props) {
           {...register("name")}
         />
 
-        <div>
-          <Label className="mb-2">Description</Label>
-          <textarea
-            className="w-full mt-1 px-3 py-2 border rounded-md"
-            rows={3}
-            {...register("description")}
-          />
-        </div>
+        <CustomInput
+          label="Description"
+          multiline={true}
+          error={errors.description?.message}
+          {...register("description")}
+        />
       </div>
 
       <div className="rounded-lg border bg-white p-6 space-y-4">
