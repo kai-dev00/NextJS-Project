@@ -22,9 +22,14 @@ export type CategoryFormValues = z.infer<typeof categorySchema>;
 type Props = {
   categories: Category[];
   permissions: Permission[];
+  defaultSearch?: string;
 };
 
-export default function CategoryClient({ categories, permissions }: Props) {
+export default function CategoryClient({
+  categories,
+  permissions,
+  defaultSearch,
+}: Props) {
   const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
 
@@ -50,6 +55,7 @@ export default function CategoryClient({ categories, permissions }: Props) {
     <div className=" rounded-lg border p-6 space-y-4">
       <CategoryTable
         categories={categories}
+        defaultSearch={defaultSearch}
         onEdit={openEdit}
         permissions={permissions}
         headerActions={

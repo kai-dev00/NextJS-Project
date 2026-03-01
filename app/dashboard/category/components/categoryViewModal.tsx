@@ -40,13 +40,13 @@ export function CategoryViewModal({ category, open, onOpenChange }: Props) {
           <div className="flex justify-between">
             <span>Created by</span>
             <span className="text-foreground">
-              {category.createdBy ?? "—"} · {formatDate(category.createdAt)}
+              {category.createdBy} · {formatDate(category.createdAt)}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Last updated by</span>
             <span className="text-foreground">
-              {category.updatedBy ?? "—"} · {formatDate(category.updatedAt)}
+              {category.updatedBy} · {formatDate(category.updatedAt)}
             </span>
           </div>
         </div>

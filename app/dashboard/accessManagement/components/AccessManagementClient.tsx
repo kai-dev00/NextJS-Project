@@ -5,7 +5,6 @@ import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { CustomModal } from "@/components/CustomModal";
 import AccessManagementForm from "./AccessManagementForm";
-import { deleteAccessAction } from "../actions/delete.user";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { RoleOption, UserRow } from "../users/page";
@@ -13,6 +12,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import NoPermission from "../../no-permission";
 import { Permission } from "@/lib/types";
 import { usePermission } from "@/lib/permissions/usePermission";
+import { deleteAccessAction } from "../actions/users";
 
 type EditUserData = {
   id: string;
@@ -27,14 +27,16 @@ export default function AccessManagementClient({
   users,
   roles,
   permissions,
+  defaultSearch,
 }: {
   users: UserRow[];
   roles: RoleOption[];
   permissions: Permission[];
+  defaultSearch?: string;
 }) {
   const { can } = usePermission(permissions);
   if (!can("access-management:read:users")) return <NoPermission />;
-
+  console.log(users);
   const [open, setOpen] = useState(false);
   const [editUser, setEditUser] = useState<EditUserData | undefined>(undefined);
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
@@ -122,6 +124,11 @@ export default function AccessManagementClient({
         </span>
       ),
     },
+    // { key: "createdAt", header: "Created At" },
+    // { key: "createdBy", header: "Created By" },
+    // { key: "updatedBy", header: "Updated By" },
+    // { key: "updatedAt", header: "Updated At" },
+
     {
       key: "actions",
       header: "",
@@ -151,6 +158,7 @@ export default function AccessManagementClient({
     <div className=" rounded-lg border p-6 space-y-4">
       <DataTable
         data={users}
+        defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
         headerActions={

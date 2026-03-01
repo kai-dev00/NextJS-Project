@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomSelect } from "@/components/CustomSelect";
 import { CustomInput } from "@/components/CustomInput";
-import { inviteUserAction } from "../actions/invite.user";
+import { editUserAction, inviteUserAction } from "../actions/users";
 import { useRouter } from "next/navigation";
-import { editUserAction } from "../actions/edit.user";
 import { showToast } from "@/lib/toast";
 import { userFormSchema, UserFormValues } from "../schema";
 

@@ -14,12 +14,14 @@ import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
 import { formatPeso } from "../../utils";
 import { CategoryViewModal } from "./categoryViewModal";
+import { TruncatedCell } from "../../utils/descriptionHelper";
 
 type Props = {
   categories: Category[];
   onEdit: (category: Category) => void;
   permissions: Permission[];
   headerActions?: React.ReactNode;
+  defaultSearch?: string;
 };
 
 export default function CategoryTable({
@@ -27,6 +29,7 @@ export default function CategoryTable({
   onEdit,
   permissions,
   headerActions,
+  defaultSearch,
 }: Props) {
   const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
@@ -63,7 +66,11 @@ export default function CategoryTable({
     {
       key: "description",
       header: "Description",
-      cell: (row) => row.description ?? "—",
+      className: "max-w-[150px]",
+      cell: (row) => {
+        if (!row.description) return <span>N/A</span>;
+        return <TruncatedCell text={row.description} />;
+      },
     },
 
     {
@@ -111,6 +118,7 @@ export default function CategoryTable({
     <>
       <DataTable
         data={categories}
+        defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
         headerActions={headerActions}

@@ -2,7 +2,12 @@ import { getCurrentUserWithDetails } from "@/lib/auth";
 import InventoryClient from "./InventoryClient";
 import prisma from "@/lib/prisma";
 
-export default async function InventoryPage() {
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const { search } = await searchParams;
   const rawInventories = await prisma.inventory.findMany({
     orderBy: { updatedAt: "desc" },
     include: {
@@ -18,8 +23,6 @@ export default async function InventoryPage() {
     quantity: item.quantity.toNumber(),
     minimumStock: item.minimumStock ? Number(item.minimumStock) : null,
     unitPrice: item.unitPrice.toNumber(),
-    createdBy: users.find((u) => u.id === item.createdBy)?.fullName ?? "—",
-    updatedBy: users.find((u) => u.id === item.updatedBy)?.fullName ?? "—",
   }));
 
   const categories = await prisma.category.findMany({
@@ -33,6 +36,7 @@ export default async function InventoryPage() {
       inventories={inventories}
       categories={categories}
       permissions={permissions}
+      defaultSearch={search ?? ""}
     />
   );
 }

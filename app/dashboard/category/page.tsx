@@ -2,7 +2,12 @@ import prisma from "@/lib/prisma";
 import CategoryClient from "./CategoryClient";
 import { getCurrentUserWithDetails } from "@/lib/auth";
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const { search } = await searchParams;
   const categories = await prisma.category.findMany({
     orderBy: { updatedAt: "desc" },
     include: {
@@ -20,8 +25,6 @@ export default async function CategoriesPage() {
 
   const categoriesWithTotal = categories.map((cat) => ({
     ...cat,
-    createdBy: users.find((u) => u.id === cat.createdBy)?.fullName ?? "—",
-    updatedBy: users.find((u) => u.id === cat.updatedBy)?.fullName ?? "—",
     totalPrice: cat.inventories.reduce(
       (sum, inv) => sum + inv.unitPrice.toNumber(),
       0,
@@ -39,6 +42,7 @@ export default async function CategoriesPage() {
     <CategoryClient
       categories={categoriesWithTotal}
       permissions={permissions}
+      defaultSearch={search ?? ""}
     />
   );
 }

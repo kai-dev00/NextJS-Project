@@ -3,12 +3,13 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getCurrentUserWithName } from "@/lib/auth";
 import {
   createWithLog,
   deleteWithLog,
   updateWithLog,
 } from "@/lib/types/prismaLogger";
+import { realtime } from "@/lib/upstash/realtime";
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
@@ -29,10 +30,12 @@ export async function createRoleAction(data: RoleFormValues) {
     throw new Error("Role with this name already exists");
   }
 
-  const currentUser = await getCurrentUser();
+  // const currentUser = await getCurrentUser();
+  const currentUser = await getCurrentUserWithName();
+
   const userId = currentUser?.userId ?? null;
 
-  const newRole = await createWithLog(
+  const newRole = (await createWithLog(
     "role",
     {
       name: validated.name,
@@ -48,7 +51,16 @@ export async function createRoleAction(data: RoleFormValues) {
     {
       include: { permissions: true },
     },
-  );
+  )) as { id: string };
+
+  await realtime.emit("activity.created", {
+    action: "create",
+    module: "access-management",
+    submodule: "roles",
+    recordId: newRole.id,
+    user: currentUser?.fullName ?? null,
+    createdAt: new Date().toISOString(),
+  });
 
   // await prisma.role.create({
   //   data: {
@@ -89,10 +101,12 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
   //   },
   // });
 
-  const currentUser = await getCurrentUser();
+  // const currentUser = await getCurrentUser();
+  const currentUser = await getCurrentUserWithName();
+
   const userId = currentUser?.userId ?? null;
 
-  const updatedRole = await updateWithLog(
+  const updatedRole = (await updateWithLog(
     "role",
     { id },
     {
@@ -109,7 +123,17 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
     {
       include: { permissions: true },
     },
-  );
+  )) as { id: string };
+
+  await realtime.emit("activity.created", {
+    action: "update",
+    module: "access-management",
+    submodule: "roles",
+    recordId: updatedRole.id,
+    user: currentUser?.fullName ?? null,
+    createdAt: new Date().toISOString(),
+  });
+
   revalidatePath("/roles");
   revalidatePath(`/roles/${id}/edit`);
 
@@ -117,7 +141,8 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
 }
 
 export async function deleteRoleAction(id: string) {
-  const currentUser = await getCurrentUser();
+  // const currentUser = await getCurrentUser();
+  const currentUser = await getCurrentUserWithName();
   const currentUserRoleId = currentUser?.roleId;
   const userId = currentUser?.userId ?? null;
 
@@ -153,6 +178,15 @@ export async function deleteRoleAction(id: string) {
     { userId, submodule: "roles" },
     { before: roleToDelete },
   );
+
+  await realtime.emit("activity.created", {
+    action: "delete",
+    module: "access-management",
+    submodule: "roles",
+    recordId: id,
+    user: currentUser?.fullName ?? null,
+    createdAt: new Date().toISOString(),
+  });
 
   revalidatePath("/roles");
   return deletedRole;

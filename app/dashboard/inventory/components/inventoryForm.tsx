@@ -75,11 +75,6 @@ export default function InventoryForm({
         required={!isEditMode}
         {...form.register("name")}
       />
-      <CustomInput
-        label="Description"
-        error={form.formState.errors.description?.message}
-        {...form.register("description")}
-      />
       <QuantityInput
         type="number"
         label="Quantity"
@@ -140,6 +135,12 @@ export default function InventoryForm({
           value: cat.id,
         }))}
         required={!isEditMode}
+      />
+      <CustomInput
+        label="Description"
+        multiline={true}
+        error={form.formState.errors.description?.message}
+        {...form.register("description")}
       />
       <div className="flex w-full justify-end">
         <Button type="submit" loading={formState.isSubmitting}>

@@ -31,7 +31,10 @@ export function CustomModal({
 }: CustomModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={showCloseButton}>
+      <DialogContent
+        showCloseButton={showCloseButton}
+        className="[&>button]:cursor-pointer"
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
