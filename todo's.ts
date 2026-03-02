@@ -20,4 +20,7 @@
 //enhance table component ui
 
 //3/1/2026
-//table enhxancements (search) yung galing sa may recent activity
+//table enhxancements (search) yung galing sa may recent activity -- alamin mo muna if gusto mo click(navigate yung recent act, kasi pede naman hinde)
+
+//3/2/2026
+//configure purchase and purchaseItem modules (schema is already there)

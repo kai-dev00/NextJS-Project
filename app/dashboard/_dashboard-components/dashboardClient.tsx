@@ -48,18 +48,23 @@ export default function DashboardClient({
   useRealtime<RealtimeEvents, "activity.created">({
     events: ["activity.created"],
     onData({ data }) {
-      setLiveActivities((prev) => [
-        {
-          id: crypto.randomUUID(),
-          action: data.action,
-          module: data.module,
-          submodule: data.submodule,
-          recordId: data.recordId,
-          createdAt: data.createdAt,
-          user: { fullName: data.user },
-        },
-        ...prev.slice(0, 9),
-      ]);
+      setLiveActivities((prev) => {
+        const exists = prev.some((a) => a.recordId === data.recordId);
+        if (exists) return prev; // skip duplicates based on the recordId
+
+        return [
+          {
+            id: crypto.randomUUID(),
+            action: data.action,
+            module: data.module,
+            submodule: data.submodule,
+            recordId: data.recordId,
+            createdAt: data.createdAt,
+            user: { fullName: data.user },
+          },
+          ...prev.slice(0, 9),
+        ];
+      });
     },
   });
 
