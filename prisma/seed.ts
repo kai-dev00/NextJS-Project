@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-// import { PrismaClient } from "@/app/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient } from "@/app/generated/prisma/client";
@@ -20,12 +19,12 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  console.log("🌱 Starting seed...");
+  console.log("Starting seed...");
   console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
   // Test connection
   await prisma.$connect();
-  console.log("✅ Database connected");
+  console.log("Database connected");
 
   await prisma.permission.createMany({
     data: rolePermissions,
@@ -52,6 +51,7 @@ async function main() {
     (p) =>
       p.module === "categories" ||
       p.module === "inventory" ||
+      p.module === "supplier" ||
       (p.module === "users" && p.action === "read") ||
       (p.module === "roles" && p.action === "read"),
   );
@@ -88,7 +88,7 @@ async function main() {
   });
 
   // Step 2: Seed Users
-  console.log("\n👥 Seeding Users...");
+  console.log("Seeding Users...");
   const password = await bcrypt.hash("Password123", 10);
   const users = [
     {
@@ -129,21 +129,20 @@ async function main() {
     },
   ];
 
-  console.log(`🔄 Upserting ${users.length} users...`);
+  console.log(`Upserting ${users.length} users...`);
 
   for (const user of users) {
     const result = await prisma.user.upsert({
       where: { email: user.email },
       update: {},
-      // create: user,
       create: user,
     });
-    console.log(`  ✅ ${result.email} (${result.id})`);
+    console.log(`${result.email} (${result.id})`);
   }
 
   // Verify
   const count = await prisma.user.count();
-  console.log(`\n✅ Seeding complete! Total users: ${count}`);
+  console.log(`Seeding complete! Total users: ${count}`);
 
   // List all users
   const allUsers = await prisma.user.findMany({
@@ -155,7 +154,7 @@ async function main() {
       },
     },
   });
-  console.log("\n📋 All users:");
+  console.log("All users:");
   allUsers.forEach((u) => {
     console.log(
       `  - ${u.email} (${u.fullName}) - Role: ${u.role.name} - Permissions: ${u.role.permissions.length}`,
@@ -165,12 +164,12 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:");
+    console.error("Seeding failed:");
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
-    console.log("\n🔌 Disconnecting...");
+    console.log("Disconnecting...");
     await prisma.$disconnect();
     await pool.end(); // Close the pool
   });

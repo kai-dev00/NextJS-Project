@@ -14,17 +14,12 @@ export default async function InventoryPage({
       category: true,
     },
   });
-  const users = await prisma.user.findMany({
-    select: { id: true, fullName: true },
-  });
-
   const inventories = rawInventories.map((item) => ({
     ...item,
     quantity: item.quantity.toNumber(),
     minimumStock: item.minimumStock ? Number(item.minimumStock) : null,
     unitPrice: item.unitPrice.toNumber(),
   }));
-
   const categories = await prisma.category.findMany({
     orderBy: { id: "asc" },
   });

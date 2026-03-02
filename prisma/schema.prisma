@@ -128,7 +128,7 @@ model ActionLog {
 
 //Modules
 model Category {
-  id          String  @id @default(cuid())
+  id          String  @id @default(uuid())
 
   name        String   @unique
   description String?
@@ -159,7 +159,7 @@ enum InventoryUnit {
 }
 
 model Inventory {
-  id          String  @id @default(cuid())
+  id          String  @id @default(uuid())
   name        String   @unique
   description String?
   categoryId  String
@@ -174,7 +174,55 @@ model Inventory {
   updatedAt   DateTime @updatedAt
   updatedBy   String?  // nullable for system-updated categories
 
-
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) //delete also its inventories when category is deleted
+  purchaseItems PurchaseItem[]
+
   @@index([categoryId])
+}
+
+
+model Supplier {
+  id          String   @id @default(uuid())
+
+  name        String   @unique
+  email       String?
+  phone       String?
+  address     String?
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  purchases   Purchase[]
+}
+
+enum PurchaseStatus {
+  DRAFT
+  RECEIVED
+  CANCELLED
+}
+model Purchase {
+  id          String   @id @default(uuid())
+  supplierId  String
+  status      PurchaseStatus @default(DRAFT)
+  notes       String?
+  total       Decimal   @default(0)
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  items       PurchaseItem[]
+}
+
+model PurchaseItem {
+  id           String   @id @default(uuid())
+  purchaseId   String
+  inventoryId  String
+  quantity     Decimal
+  unitCost     Decimal
+  purchase     Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  inventory    Inventory @relation(fields: [inventoryId], references: [id])
 }
