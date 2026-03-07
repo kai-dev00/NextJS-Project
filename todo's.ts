@@ -30,3 +30,4 @@
 //tooltip sa acitons ng table --done
 //history ng purchas esa may inventory or category --done
 //accessmanagement updatedat chaneg sa schema(di pa tapos)
+//download xlsx in tables
