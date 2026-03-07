@@ -15,6 +15,7 @@ import { usePermission } from "@/lib/permissions/usePermission";
 import { formatPeso } from "../../utils";
 import { CategoryViewModal } from "./categoryViewModal";
 import { TruncatedCell } from "../../utils/descriptionHelper";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 type Props = {
   categories: Category[];
@@ -85,29 +86,35 @@ export default function CategoryTable({
       cell: (row) => (
         <div className="flex justify-center">
           {can("category:read") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setViewCategory(row)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="View">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setViewCategory(row)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
 
           {can("category:update") && (
-            <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Edit">
+              <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
 
           {can("category:delete") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDeleteUser(row)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Delete">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeleteUser(row)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
         </div>
       ),

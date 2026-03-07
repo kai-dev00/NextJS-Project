@@ -12,6 +12,7 @@ import { showToast } from "@/lib/toast";
 import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
 import { Permission } from "@/lib/types";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 type Role = {
   id: string;
@@ -94,20 +95,24 @@ export function RolesManagementClient({
       cell: (role) => (
         <div className="flex justify-center">
           {can("access-management:update:roles") && (
-            <Link href={`/dashboard/accessManagement/roles/${role.id}/edit`}>
-              <Button variant="ghost" size="sm">
-                <Pencil className="h-4 w-4" />
-              </Button>
-            </Link>
+            <CustomTooltip content="Edit">
+              <Link href={`/dashboard/accessManagement/roles/${role.id}/edit`}>
+                <Button variant="ghost" size="sm">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CustomTooltip>
           )}
           {can("access-management:delete:roles") && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setDeleteModal({ open: true, role })}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Delete">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteModal({ open: true, role })}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
         </div>
       ),

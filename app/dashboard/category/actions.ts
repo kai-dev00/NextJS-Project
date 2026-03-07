@@ -63,6 +63,7 @@ export async function updateCategory(id: string, values: CategoryFormValues) {
       color: values.color,
       description: values.description,
       updatedBy: currentUser?.fullName ?? "System", // use id or name?
+      updatedAt: new Date(),
     },
     {
       userId,

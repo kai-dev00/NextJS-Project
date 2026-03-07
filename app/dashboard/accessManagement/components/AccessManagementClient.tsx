@@ -13,6 +13,7 @@ import NoPermission from "../../no-permission";
 import { Permission } from "@/lib/types";
 import { usePermission } from "@/lib/permissions/usePermission";
 import { deleteAccessAction } from "../actions/users";
+import { CustomTooltip } from "@/components/CustomTooltip";
 
 type EditUserData = {
   id: string;
@@ -136,18 +137,22 @@ export default function AccessManagementClient({
       cell: (row) => (
         <div className="flex justify-center">
           {can("access-management:update:users") && (
-            <Button size="sm" variant="ghost" onClick={() => handleEdit(row)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Edit">
+              <Button size="sm" variant="ghost" onClick={() => handleEdit(row)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
           {can("access-management:delete:users") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDeleteUser(row)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Delete">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeleteUser(row)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
         </div>
       ),

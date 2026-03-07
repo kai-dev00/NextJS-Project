@@ -67,6 +67,7 @@ export async function updateSupplier(id: string, values: SupplierFormValues) {
       address: values.address,
       notes: values.notes,
       updatedBy: currentUser?.fullName ?? "System", // use id or name?
+      updatedAt: new Date(),
     },
     {
       userId,

@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 type CustomModalProps = {
   open?: boolean;
@@ -18,6 +19,14 @@ type CustomModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   showCloseButton?: boolean;
+  size?: "sm" | "md" | "lg" | "xl";
+};
+
+const sizeClasses = {
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-lg",
+  lg: "sm:max-w-2xl",
+  xl: "sm:max-w-4xl",
 };
 
 export function CustomModal({
@@ -28,12 +37,13 @@ export function CustomModal({
   children,
   footer,
   showCloseButton = true,
+  size = "md",
 }: CustomModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={showCloseButton}
-        className="[&>button]:cursor-pointer"
+        className={cn("[&>button]:cursor-pointer", sizeClasses[size])}
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

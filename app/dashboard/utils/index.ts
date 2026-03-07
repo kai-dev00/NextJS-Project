@@ -61,7 +61,7 @@ export const inventoryStatusConfig = {
 
 //date helper
 export function formatDate(date?: Date | null) {
-  if (!date) return "—";
+  if (!date) return "";
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

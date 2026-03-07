@@ -52,6 +52,7 @@ async function main() {
       p.module === "categories" ||
       p.module === "inventory" ||
       p.module === "supplier" ||
+      p.module === "purchase" ||
       (p.module === "users" && p.action === "read") ||
       (p.module === "roles" && p.action === "read"),
   );

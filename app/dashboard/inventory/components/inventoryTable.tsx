@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Permission } from "@/lib/types";
 import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
-import { InventoryWithCategory } from "../InventoryClient";
+import { InventoryWithCategory, PurchaseHistoryItem } from "../InventoryClient";
 import { formatPeso, formatUnit, inventoryStatusConfig } from "../../utils";
 import { deleteInventory } from "../actions";
 import { InventoryStatusBadge } from "./inventoryStatusBadge";
@@ -26,6 +26,7 @@ type Props = {
   permissions: Permission[];
   headerActions?: React.ReactNode;
   defaultSearch?: string;
+  purchaseHistory: PurchaseHistoryItem[];
 };
 
 export default function InventoryTable({
@@ -35,6 +36,7 @@ export default function InventoryTable({
   permissions,
   headerActions,
   defaultSearch,
+  purchaseHistory,
 }: Props) {
   const { can } = usePermission(permissions);
   if (!can("category:read")) return <NoPermission />;
@@ -120,10 +122,28 @@ export default function InventoryTable({
         return <InventoryStatusBadge status={row.status} />;
       },
     },
+    // {
+    //   key: "price",
+    //   header: "Price",
+    //   cell: (row) => formatPeso(row.unitPrice),
+    // },
+
     {
-      key: "price",
-      header: "Price",
-      cell: (row) => formatPeso(row.unitPrice),
+      key: "unitPrice",
+      header: "Unit Price",
+      cell: (row) => {
+        const unit = row.unit?.toLowerCase();
+        return (
+          <span>
+            {formatPeso(row.unitPrice)} / {unit}
+          </span>
+        );
+      },
+    },
+    {
+      key: "totalAmount",
+      header: "Total Amount",
+      cell: (row) => formatPeso(row.unitPrice * row.quantity),
     },
     {
       key: "actions",
@@ -218,6 +238,7 @@ export default function InventoryTable({
         open={!!viewInventory}
         onOpenChange={(v) => !v && setViewInventory(null)}
         inventory={viewInventory}
+        purchaseHistory={purchaseHistory}
       />
     </>
   );

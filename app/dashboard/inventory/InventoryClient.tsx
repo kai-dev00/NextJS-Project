@@ -46,11 +46,28 @@ export type InventoryWithCategory = Omit<
   unitPrice: number;
 };
 
+export type PurchaseHistoryItem = {
+  id: string;
+  purchaseId: string;
+  inventoryId: string;
+  quantity: number;
+  unitCost: number;
+  purchase: {
+    id: string;
+    status: string;
+    total: number;
+    createdAt: string;
+    updatedAt: string | null;
+    supplier: { name: string };
+  };
+};
+
 type Props = {
   inventories: InventoryWithCategory[];
   categories: Category[];
   permissions: Permission[];
   defaultSearch?: string;
+  purchaseHistory: PurchaseHistoryItem[];
 };
 
 export default function InventoryClient({
@@ -58,6 +75,7 @@ export default function InventoryClient({
   categories,
   permissions,
   defaultSearch,
+  purchaseHistory,
 }: Props) {
   const { can } = usePermission(permissions);
   if (!can("inventory:read")) return <NoPermission />;
@@ -131,6 +149,7 @@ export default function InventoryClient({
         categories={categories}
         onEdit={openEdit}
         permissions={permissions}
+        purchaseHistory={purchaseHistory}
         headerActions={
           can("inventory:create") && (
             <Button onClick={openCreate}>Add Inventory</Button>

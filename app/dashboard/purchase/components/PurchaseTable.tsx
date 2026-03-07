@@ -1,0 +1,270 @@
+"use client";
+
+import { DataTable, Column } from "@/components/DataTable";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2, Eye, CheckCheck, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
+import { CustomModal } from "@/components/CustomModal";
+import { useState } from "react";
+import { Permission } from "@/lib/types";
+import { usePermission } from "@/lib/permissions/usePermission";
+import { formatPeso } from "../../utils";
+import { PurchaseStatus } from "@/app/generated/prisma/browser";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { PurchaseWithDetails } from "./PurchaseClient";
+import { cancelPurchase, deletePurchase, receivePurchase } from "../actions";
+import { CustomTooltip } from "@/components/CustomTooltip";
+import { PurchaseViewModal } from "./PurchaseViewModal";
+
+const purchaseStatusConfig: Record<
+  PurchaseStatus,
+  { label: string; className: string }
+> = {
+  DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-700" },
+  RECEIVED: { label: "Received", className: "bg-green-100 text-green-700" },
+  CANCELLED: { label: "Cancelled", className: "bg-red-100 text-red-700" },
+};
+
+type Props = {
+  purchases: PurchaseWithDetails[];
+  onEdit: (purchase: PurchaseWithDetails) => void;
+  permissions: Permission[];
+  headerActions?: React.ReactNode;
+};
+
+export default function PurchaseTable({
+  purchases,
+  onEdit,
+  permissions,
+  headerActions,
+}: Props) {
+  const { can } = usePermission(permissions);
+  const [viewPurchase, setViewPurchase] = useState<PurchaseWithDetails | null>(
+    null,
+  );
+  const [deletePurchaseItem, setDeletePurchaseItem] =
+    useState<PurchaseWithDetails | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!deletePurchaseItem) return;
+    setDeleting(true);
+    try {
+      await deletePurchase(deletePurchaseItem.id);
+      showToast.success("Purchase deleted");
+      router.refresh();
+      setDeletePurchaseItem(null);
+    } catch (err) {
+      showToast.error("Delete failed", "Unable to delete purchase");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  //received, cancelled, draft
+
+  const [receiving, setReceiving] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
+
+  const handleReceive = async (id: string) => {
+    setReceiving(id);
+    try {
+      await receivePurchase(id);
+      showToast.success("Purchase received", "Inventory has been updated");
+      router.refresh();
+    } catch (err: any) {
+      showToast.error("Failed", err?.message);
+    } finally {
+      setReceiving(null);
+    }
+  };
+
+  const handleCancel = async (id: string) => {
+    setCancelling(id);
+    try {
+      await cancelPurchase(id);
+      showToast.success("Purchase cancelled");
+      router.refresh();
+    } catch (err: any) {
+      showToast.error("Failed", err?.message);
+    } finally {
+      setCancelling(null);
+    }
+  };
+
+  const columns: Column<PurchaseWithDetails>[] = [
+    {
+      key: "id",
+      header: "PO #",
+      cell: (row) => (
+        <span className="font-mono text-xs">
+          {row.id.slice(0, 8).toUpperCase()}
+        </span>
+      ),
+    },
+    {
+      key: "supplier",
+      header: "Supplier",
+      cell: (row) => row.supplier?.name ?? "—",
+    },
+    {
+      key: "items",
+      header: "Items",
+      cell: (row) => (
+        <span className="text-muted-foreground text-xs">
+          {row.items.length} item{row.items.length !== 1 ? "s" : ""}
+        </span>
+      ),
+    },
+    {
+      key: "total",
+      header: "Total",
+      cell: (row) => formatPeso(row.total),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (row) => {
+        const config = purchaseStatusConfig[row.status];
+        return <Badge className={cn(config.className)}>{config.label}</Badge>;
+      },
+    },
+    {
+      key: "createdAt",
+      header: "Date",
+      cell: (row) =>
+        new Date(row.createdAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+    },
+
+    {
+      key: "actions",
+      header: "",
+      className: "text-right",
+      cell: (row) => (
+        <div className="flex justify-center gap-1">
+          {can("purchase:update") && row.status === "DRAFT" && (
+            <>
+              <CustomTooltip content="Mark as Received">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-green-600 hover:text-green-700"
+                  disabled={receiving === row.id}
+                  onClick={() => handleReceive(row.id)}
+                >
+                  <CheckCheck className="h-4 w-4" />
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip content="Cancel">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-yellow-600 hover:text-yellow-700"
+                  disabled={cancelling === row.id}
+                  onClick={() => handleCancel(row.id)}
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip content="Edit">
+                <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </CustomTooltip>
+            </>
+          )}
+          {can("purchase:read") && (
+            <CustomTooltip content="View">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setViewPurchase(row)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
+          )}
+
+          {can("purchase:delete") && row.status === "DRAFT" && (
+            <CustomTooltip content="Delete">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeletePurchaseItem(row)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <DataTable
+        data={purchases}
+        columns={columns}
+        keyField="id"
+        headerActions={headerActions}
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            options: Object.values(PurchaseStatus).map((status) => ({
+              label: purchaseStatusConfig[status].label,
+              value: status,
+            })),
+          },
+        ]}
+      />
+
+      {/* Delete Modal */}
+      <CustomModal
+        open={!!deletePurchaseItem}
+        onOpenChange={(v) => !v && setDeletePurchaseItem(null)}
+        title="Delete Purchase"
+      >
+        <div className="space-y-4">
+          <p className="text-sm">
+            Are you sure you want to delete purchase{" "}
+            <span className="font-semibold">
+              {deletePurchaseItem?.id.slice(0, 8).toUpperCase()}
+            </span>
+            ?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeletePurchaseItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleting}
+              loading={deleting}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </CustomModal>
+
+      <PurchaseViewModal
+        open={!!viewPurchase}
+        onOpenChange={(v) => !v && setViewPurchase(null)}
+        purchase={viewPurchase}
+      />
+    </>
+  );
+}

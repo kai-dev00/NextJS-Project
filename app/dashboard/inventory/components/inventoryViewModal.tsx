@@ -1,7 +1,7 @@
 "use client";
 
 import { CustomModal } from "@/components/CustomModal";
-import { InventoryWithCategory } from "../InventoryClient";
+import { InventoryWithCategory, PurchaseHistoryItem } from "../InventoryClient";
 import { formatDate, formatPeso } from "../../utils";
 import { InventoryStatusBadge } from "./inventoryStatusBadge";
 
@@ -9,13 +9,24 @@ type Props = {
   inventory: InventoryWithCategory | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  purchaseHistory: PurchaseHistoryItem[];
 };
 
-export function InventoryViewModal({ inventory, open, onOpenChange }: Props) {
+export function InventoryViewModal({
+  inventory,
+  open,
+  onOpenChange,
+  purchaseHistory,
+}: Props) {
   if (!inventory) return null;
 
   return (
-    <CustomModal open={open} onOpenChange={onOpenChange} title={inventory.name}>
+    <CustomModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={inventory.name}
+      size="xl"
+    >
       <div className="space-y-4 text-sm">
         {/* Status + Category row */}
         <div className="flex items-center gap-2">
@@ -33,6 +44,46 @@ export function InventoryViewModal({ inventory, open, onOpenChange }: Props) {
         )}
 
         <hr />
+        {/* Purchase History */}
+        <div className="space-y-2">
+          <p className="font-medium text-xs text-muted-foreground uppercase tracking-wide">
+            Purchase History
+          </p>
+          {purchaseHistory.filter((item) => item.inventoryId === inventory.id)
+            .length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-4">
+              No purchase history
+            </p>
+          ) : (
+            <div className="max-h-45 overflow-y-auto space-y-1">
+              <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 text-xs text-muted-foreground px-1">
+                <span>Supplier</span>
+                <span>Qty</span>
+                <span>Unit Cost</span>
+                <span className="text-right">Date</span>
+              </div>
+              {purchaseHistory
+                .filter((item) => item.inventoryId === inventory.id)
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 border rounded-lg px-3 py-2 text-xs"
+                  >
+                    <span className="font-medium">
+                      {item.purchase.supplier.name}
+                    </span>
+                    <span>
+                      {item.quantity} {inventory.unit.toLowerCase()}
+                    </span>
+                    <span>{formatPeso(item.unitCost)}</span>
+                    <span className="text-muted-foreground text-right">
+                      {formatDate(new Date(item.purchase.createdAt))}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
 
         {/* Stock Info */}
         <div className="grid grid-cols-3 gap-3">
@@ -72,12 +123,14 @@ export function InventoryViewModal({ inventory, open, onOpenChange }: Props) {
               {inventory.createdBy} · {formatDate(inventory.createdAt)}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>Last updated by</span>
-            <span className="text-foreground">
-              {inventory.updatedBy} · {formatDate(inventory.updatedAt)}
-            </span>
-          </div>
+          {inventory.updatedBy && inventory.updatedAt && (
+            <div className="flex justify-between">
+              <span>Last updated by</span>
+              <span className="text-foreground">
+                {inventory.updatedBy} · {formatDate(inventory.updatedAt)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </CustomModal>
