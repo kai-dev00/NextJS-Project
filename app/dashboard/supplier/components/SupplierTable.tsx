@@ -27,7 +27,6 @@ type Props = {
 
 export default function SupplierTable({
   suppliers,
-  //   categories,
   onEdit,
   permissions,
   headerActions,
@@ -78,11 +77,6 @@ export default function SupplierTable({
       header: "Email",
       className: "max-w-[150px]",
       cell: (row) => row.email,
-
-      //     cell: (row) => {
-      //     if (!row.description) return <span>N/A</span>;
-      //     return <TruncatedCell text={row.description} />;
-      //   },
     },
     {
       key: "phone",
@@ -104,27 +98,33 @@ export default function SupplierTable({
       cell: (row) => (
         <div className="flex justify-center">
           {can("supplier:read") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setViewSupplier(row)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="View">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setViewSupplier(row)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
           {can("supplier:update") && (
-            <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Edit">
+              <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
           {can("supplier:delete") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDeleteUser(row)}
-            >
-              <Trash2 className="h-4 w-4 " />
-            </Button>
+            <CustomTooltip content="Delete">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeleteUser(row)}
+              >
+                <Trash2 className="h-4 w-4 " />
+              </Button>
+            </CustomTooltip>
           )}
         </div>
       ),

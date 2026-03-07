@@ -1,6 +1,6 @@
 // app/api/test-edit-user/route.ts
 
-import { editUserAction } from "@/app/dashboard/accessManagement/actions/edit.user";
+import { editUserAction } from "@/app/dashboard/accessManagement/actions/users";
 import { NextResponse } from "next/server";
 
 export async function GET() {

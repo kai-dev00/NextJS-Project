@@ -15,6 +15,7 @@ const routeTitles: Record<string, string> = {
   "/dashboard/inventory": "Inventory",
   "/dashboard/category": "Category",
   "/dashboard/supplier": "Supplier",
+  "/dashboard/purchase": "Purchase",
   "/dashboard/accessManagement": "Access Management",
   "/dashboard/accessManagement/users": "Access Management",
   "/dashboard/accessManagement/roles": "Access Management",

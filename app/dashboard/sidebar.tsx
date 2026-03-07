@@ -11,7 +11,7 @@ import {
   MdCategory,
   MdManageAccounts,
 } from "react-icons/md";
-import { FaCartFlatbed } from "react-icons/fa6";
+import { FaCartFlatbed, FaClipboardList } from "react-icons/fa6";
 import { IconType } from "react-icons";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -63,6 +63,13 @@ const navItems: NavItem[] = [
     icon: FaCartFlatbed,
     exact: true,
     permission: "supplier:read",
+  },
+  {
+    label: "Purchase",
+    href: "/dashboard/purchase",
+    icon: FaClipboardList,
+    exact: true,
+    permission: "purchase:read",
   },
   {
     label: "Access Management",

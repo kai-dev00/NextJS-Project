@@ -59,12 +59,14 @@ export function SupplierViewModal({ supplier, open, onOpenChange }: Props) {
               {supplier.createdBy || "N/A"} · {formatDate(supplier.createdAt)}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span>Last updated by</span>
-            <span className="text-foreground">
-              {supplier.updatedBy || "N/A"} · {formatDate(supplier.updatedAt)}
-            </span>
-          </div>
+          {supplier.updatedBy && supplier.updatedAt && (
+            <div className="flex justify-between">
+              <span>Last updated by</span>
+              <span className="text-foreground">
+                {supplier.updatedBy} · {formatDate(supplier.updatedAt)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </CustomModal>

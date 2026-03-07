@@ -136,7 +136,7 @@ model Category {
   color       String?  // hex color 
   createdAt   DateTime @default(now())
   createdBy   String?  // nullable for system-created categories
-  updatedAt   DateTime @updatedAt  //nullable
+  updatedAt   DateTime?
   updatedBy   String?  // nullable for system-updated categories
 
   totalPrice   Float    @default(0) 
@@ -171,7 +171,7 @@ model Inventory {
 
   createdAt   DateTime @default(now())
   createdBy   String?  // nullable for system-created categories
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
   updatedBy   String?  // nullable for system-updated categories
 
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) //delete also its inventories when category is deleted
@@ -192,7 +192,7 @@ model Supplier {
 
   createdAt   DateTime @default(now())
   createdBy   String?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
   updatedBy   String?
 
   purchases   Purchase[]
@@ -211,7 +211,7 @@ model Purchase {
   total       Decimal   @default(0)
   createdAt   DateTime @default(now())
   createdBy   String?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
   updatedBy   String?
   supplier    Supplier @relation(fields: [supplierId], references: [id])
   items       PurchaseItem[]

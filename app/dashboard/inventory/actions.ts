@@ -68,8 +68,8 @@ export async function updateInventory(id: string, values: InventoryFormValues) {
       unitPrice: new Decimal(values.unitPrice),
       status,
       categoryId: values.categoryId,
-      // updatedBy: userId,
       updatedBy: currentUser?.fullName ?? "System", // use id or name?
+      updatedAt: new Date(),
     },
     {
       userId,
