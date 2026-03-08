@@ -119,6 +119,7 @@ export default function InventoryClient({
           description="Across all categories"
           onClick={() => setStatusFilter(null)}
           active={statusFilter === null}
+          color="default"
         />
 
         <StatsCard
@@ -130,6 +131,7 @@ export default function InventoryClient({
           trend={{ value: -5, label: "from last week" }}
           onClick={() => toggleFilter("low_stock")}
           active={statusFilter === "low_stock"}
+          color="warning"
         />
 
         <StatsCard
@@ -141,6 +143,7 @@ export default function InventoryClient({
           trend={{ value: 2 }}
           onClick={() => toggleFilter("out_of_stock")}
           active={statusFilter === "out_of_stock"}
+          color="danger"
         />
       </div>
       <InventoryTable

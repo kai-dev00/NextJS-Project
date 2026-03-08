@@ -2,7 +2,7 @@
 
 import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye } from "lucide-react";
+import { Pencil, Trash2, Eye, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { CustomModal } from "@/components/CustomModal";
@@ -11,13 +11,19 @@ import { Permission } from "@/lib/types";
 import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
 import { InventoryWithCategory, PurchaseHistoryItem } from "../InventoryClient";
-import { formatPeso, formatUnit, inventoryStatusConfig } from "../../utils";
+import {
+  formatPeso,
+  formatUnit,
+  inventoryStatusConfig,
+  today,
+} from "../../utils";
 import { deleteInventory } from "../actions";
 import { InventoryStatusBadge } from "./inventoryStatusBadge";
 import { InventoryViewModal } from "./inventoryViewModal";
 import { Category, InventoryStatus } from "@/app/generated/prisma/browser";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { TruncatedCell } from "../../utils/descriptionHelper";
+import { downloadExcel } from "../../utils/downloadExcel";
 
 type Props = {
   inventories: InventoryWithCategory[];
@@ -72,11 +78,13 @@ export default function InventoryTable({
           <span>{row.name}</span>
         </div>
       ),
+      exportValue: (row) => row.name,
     },
     {
       key: "category",
       header: "Category",
       cell: (row) => row.category?.name,
+      exportValue: (row) => row.category?.name ?? "",
     },
     {
       key: "description",
@@ -86,6 +94,7 @@ export default function InventoryTable({
         if (!row.description) return <span>N/A</span>;
         return <TruncatedCell text={row.description} />;
       },
+      exportValue: (row) => `${row.quantity} ${row.unit.toLowerCase()}`,
     },
     {
       key: "quantity",
@@ -99,6 +108,7 @@ export default function InventoryTable({
           </div>
         );
       },
+      exportValue: (row) => `${row.quantity} ${row.unit.toLowerCase()}`,
     },
     {
       key: "minimumStock",
@@ -113,6 +123,10 @@ export default function InventoryTable({
           </div>
         );
       },
+      exportValue: (row) => {
+        if (row.minimumStock == null) return "";
+        return `${row.minimumStock} ${row.unit.toLowerCase()}`;
+      },
     },
     {
       key: "status",
@@ -121,6 +135,7 @@ export default function InventoryTable({
         if (!row.status) return null;
         return <InventoryStatusBadge status={row.status} />;
       },
+      exportValue: (row) => row.status ?? "",
     },
     // {
     //   key: "price",
@@ -139,11 +154,13 @@ export default function InventoryTable({
           </span>
         );
       },
+      exportValue: (row) => formatPeso(row.unitPrice),
     },
     {
       key: "totalAmount",
       header: "Total Amount",
       cell: (row) => formatPeso(row.unitPrice * row.quantity),
+      exportValue: (row) => formatPeso(row.unitPrice),
     },
     {
       key: "actions",
@@ -152,27 +169,33 @@ export default function InventoryTable({
       cell: (row) => (
         <div className="flex justify-center">
           {can("inventory:read") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setViewInventory(row)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="View">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setViewInventory(row)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
           {can("inventory:update") && (
-            <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <CustomTooltip content="Edit">
+              <Button size="sm" variant="ghost" onClick={() => onEdit(row)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </CustomTooltip>
           )}
           {can("inventory:delete") && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDeleteUser(row)}
-            >
-              <Trash2 className="h-4 w-4 " />
-            </Button>
+            <CustomTooltip content="Delete">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDeleteUser(row)}
+              >
+                <Trash2 className="h-4 w-4 " />
+              </Button>
+            </CustomTooltip>
           )}
         </div>
       ),
@@ -186,7 +209,23 @@ export default function InventoryTable({
         defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
-        headerActions={headerActions}
+        headerActions={
+          <div className="flex gap-2">
+            {inventories.length > 0 && (
+              <CustomTooltip content="Download Excel">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    downloadExcel(inventories, columns, `Inventories-${today}`)
+                  }
+                >
+                  <Download className="size-4" />
+                </Button>
+              </CustomTooltip>
+            )}
+            {headerActions}
+          </div>
+        }
         filters={[
           {
             key: "status",
@@ -206,6 +245,9 @@ export default function InventoryTable({
           },
         ]}
       />
+      {/* <Button onClick={() => downloadExcel(inventories, columns, "inventory")}>
+        Download Excel
+      </Button> */}
       <CustomModal
         open={!!deleteUser}
         onOpenChange={(v) => !v && setDeleteUser(null)}

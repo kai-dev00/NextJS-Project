@@ -1,0 +1,23 @@
+[
+  {
+    "name": "ADMIN",
+    "description": "Administrator with full access",
+    "permissions": "all"
+  },
+  {
+    "name": "MODERATOR",
+    "description": "Moderator with elevated permissions",
+    "permissions": {
+      "modules": ["categories", "inventory", "supplier", "purchase"],
+      "extra": [
+        { "module": "users", "action": "read" },
+        { "module": "roles", "action": "read" }
+      ]
+    }
+  },
+  {
+    "name": "USER",
+    "description": "Regular user with basic access",
+    "permissions": "read_only"
+  }
+]

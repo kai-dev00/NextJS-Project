@@ -75,9 +75,7 @@ export default function PurchaseClient({
         permissions={permissions}
         headerActions={
           can("purchase:create") && (
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-1" /> New Order
-            </Button>
+            <Button onClick={openCreate}>New Order</Button>
           )
         }
       />

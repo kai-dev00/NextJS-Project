@@ -100,7 +100,7 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const [isHovered, setIsHovered] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    "Access Management": true,
+    "Access Management": false,
   });
 
   const toggleMenu = (label: string) => {
