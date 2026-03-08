@@ -3,7 +3,7 @@
 import { Category } from "@/app/generated/prisma/browser";
 import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Download, Eye, Pencil, Trash2 } from "lucide-react";
 import { deleteCategory } from "../actions";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
@@ -12,10 +12,11 @@ import { useState } from "react";
 import { Permission } from "@/lib/types";
 import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
-import { formatPeso } from "../../utils";
+import { formatPeso, today } from "../../utils";
 import { CategoryViewModal } from "./categoryViewModal";
 import { TruncatedCell } from "../../utils/descriptionHelper";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { downloadExcel } from "../../utils/downloadExcel";
 
 type Props = {
   categories: Category[];
@@ -63,6 +64,7 @@ export default function CategoryTable({
           <span>{row.name}</span>
         </div>
       ),
+      exportValue: (row) => row.name,
     },
     {
       key: "description",
@@ -72,12 +74,14 @@ export default function CategoryTable({
         if (!row.description) return <span>N/A</span>;
         return <TruncatedCell text={row.description} />;
       },
+      exportValue: (row) => row.description,
     },
 
     {
       key: "totalPrice",
       header: "Total Price",
       cell: (row) => formatPeso(row.totalPrice),
+      exportValue: (row) => formatPeso(row.totalPrice),
     },
     {
       key: "actions",
@@ -128,7 +132,23 @@ export default function CategoryTable({
         defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
-        headerActions={headerActions}
+        headerActions={
+          <div className="flex gap-2">
+            {categories.length > 0 && (
+              <CustomTooltip content="Download Excel">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    downloadExcel(categories, columns, `Categories-${today}`)
+                  }
+                >
+                  <Download className="size-4" />
+                </Button>
+              </CustomTooltip>
+            )}
+            {headerActions}
+          </div>
+        }
       />
       <CustomModal
         open={!!deleteUser}

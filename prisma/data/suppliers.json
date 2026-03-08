@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Bean Traders Inc",
+    "email": "contact@beantraders.com",
+    "phone": "+1234567890",
+    "address": "123 Coffee St, Manila",
+    "notes": "Primary coffee bean supplier"
+  },
+  {
+    "name": "Café Equipment Co",
+    "email": "sales@cafeequip.com",
+    "phone": "+0987654321",
+    "address": "456 Industrial Ave, Makati",
+    "notes": "Equipment and machinery supplier"
+  },
+  {
+    "name": "General Supplies PH",
+    "email": "info@generalsupplies.ph",
+    "phone": "+1122334455",
+    "address": "789 Market Rd, Quezon City",
+    "notes": "General goods and disposables"
+  }
+]

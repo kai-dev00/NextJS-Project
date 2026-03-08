@@ -2,7 +2,7 @@
 
 import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye } from "lucide-react";
+import { Pencil, Trash2, Eye, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { CustomModal } from "@/components/CustomModal";
@@ -15,6 +15,8 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { TruncatedCell } from "../../utils/descriptionHelper";
 import { deleteSupplier } from "../actions";
 import { SupplierViewModal } from "./SupplierViewModal";
+import { today } from "../../utils";
+import { downloadExcel } from "../../utils/downloadExcel";
 
 type Props = {
   suppliers: Supplier[];
@@ -63,6 +65,7 @@ export default function SupplierTable({
           <span>{row.name}</span>
         </div>
       ),
+      exportValue: (row) => row.name,
     },
     {
       key: "address",
@@ -71,17 +74,20 @@ export default function SupplierTable({
         if (!row.address) return <span>N/A</span>;
         return <TruncatedCell text={row.address} />;
       },
+      exportValue: (row) => row.address,
     },
     {
       key: "email",
       header: "Email",
       className: "max-w-[150px]",
       cell: (row) => row.email,
+      exportValue: (row) => row.email,
     },
     {
       key: "phone",
       header: "Phone",
       cell: (row) => row.phone,
+      exportValue: (row) => row.phone,
     },
     {
       key: "notes",
@@ -90,6 +96,7 @@ export default function SupplierTable({
         if (!row.notes) return <span>N/A</span>;
         return <TruncatedCell text={row.notes} />;
       },
+      exportValue: (row) => row.notes,
     },
     {
       key: "actions",
@@ -138,7 +145,23 @@ export default function SupplierTable({
         defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
-        headerActions={headerActions}
+        headerActions={
+          <div className="flex gap-2">
+            {suppliers.length > 0 && (
+              <CustomTooltip content="Download Excel">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    downloadExcel(suppliers, columns, `Suppliers-${today}`)
+                  }
+                >
+                  <Download className="size-4" />
+                </Button>
+              </CustomTooltip>
+            )}
+            {headerActions}
+          </div>
+        }
       />
       <CustomModal
         open={!!deleteUser}

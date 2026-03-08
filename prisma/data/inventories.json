@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Arabica Coffee Beans",
+    "description": "Premium single origin arabica beans",
+    "category": "Coffee Beans",
+    "quantity": 50,
+    "minimumStock": 10,
+    "unitPrice": 350,
+    "unit": "KG",
+    "status": "in_stock"
+  },
+  {
+    "name": "Espresso Machine",
+    "description": "Commercial grade espresso machine",
+    "category": "Equipments",
+    "quantity": 2,
+    "minimumStock": 1,
+    "unitPrice": 85000,
+    "unit": "PCS",
+    "status": "in_stock"
+  },
+  {
+    "name": "Paper Cups",
+    "description": "Disposable paper cups",
+    "category": "Others",
+    "quantity": 500,
+    "minimumStock": 100,
+    "unitPrice": 5,
+    "unit": "PCS",
+    "status": "in_stock"
+  }
+]

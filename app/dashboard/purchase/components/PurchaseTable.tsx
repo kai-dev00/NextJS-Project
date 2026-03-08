@@ -2,14 +2,21 @@
 
 import { DataTable, Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Eye, CheckCheck, XCircle } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  CheckCheck,
+  XCircle,
+  Download,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 import { CustomModal } from "@/components/CustomModal";
 import { useState } from "react";
 import { Permission } from "@/lib/types";
 import { usePermission } from "@/lib/permissions/usePermission";
-import { formatPeso } from "../../utils";
+import { formatDate, formatPeso, today } from "../../utils";
 import { PurchaseStatus } from "@/app/generated/prisma/browser";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -17,6 +24,7 @@ import { PurchaseWithDetails } from "./PurchaseClient";
 import { cancelPurchase, deletePurchase, receivePurchase } from "../actions";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { PurchaseViewModal } from "./PurchaseViewModal";
+import { downloadExcel } from "../../utils/downloadExcel";
 
 const purchaseStatusConfig: Record<
   PurchaseStatus,
@@ -104,11 +112,13 @@ export default function PurchaseTable({
           {row.id.slice(0, 8).toUpperCase()}
         </span>
       ),
+      exportValue: (row) => row.id.slice(0, 8).toUpperCase(),
     },
     {
       key: "supplier",
       header: "Supplier",
-      cell: (row) => row.supplier?.name ?? "—",
+      cell: (row) => row.supplier?.name ?? "NA",
+      exportValue: (row) => row.supplier?.name ?? "NA",
     },
     {
       key: "items",
@@ -118,11 +128,13 @@ export default function PurchaseTable({
           {row.items.length} item{row.items.length !== 1 ? "s" : ""}
         </span>
       ),
+      exportValue: (row) => row.items.length,
     },
     {
       key: "total",
       header: "Total",
       cell: (row) => formatPeso(row.total),
+      exportValue: (row) => formatPeso(row.total),
     },
     {
       key: "status",
@@ -131,18 +143,14 @@ export default function PurchaseTable({
         const config = purchaseStatusConfig[row.status];
         return <Badge className={cn(config.className)}>{config.label}</Badge>;
       },
+      exportValue: (row) => purchaseStatusConfig[row.status].label,
     },
     {
       key: "createdAt",
       header: "Date",
-      cell: (row) =>
-        new Date(row.createdAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
+      cell: (row) => formatDate(row.createdAt),
+      exportValue: (row) => formatDate(row.createdAt),
     },
-
     {
       key: "actions",
       header: "",
@@ -214,7 +222,23 @@ export default function PurchaseTable({
         data={purchases}
         columns={columns}
         keyField="id"
-        headerActions={headerActions}
+        headerActions={
+          <div className="flex gap-2">
+            {purchases.length > 0 && (
+              <CustomTooltip content="Download Excel">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    downloadExcel(purchases, columns, `Purchases-${today}`)
+                  }
+                >
+                  <Download className="size-4" />
+                </Button>
+              </CustomTooltip>
+            )}
+            {headerActions}
+          </div>
+        }
         filters={[
           {
             key: "status",

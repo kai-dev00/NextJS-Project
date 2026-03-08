@@ -68,3 +68,9 @@ export function formatDate(date?: Date | null) {
     year: "numeric",
   });
 }
+
+export const today = new Date().toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});

@@ -29,5 +29,6 @@
 //totla amount sa mayinventory and purchase, paano implementation non? (okay na bale lagyan nalang hg history sa may inventory)
 //tooltip sa acitons ng table --done
 //history ng purchas esa may inventory or category --done
-//accessmanagement updatedat chaneg sa schema(di pa tapos)
+//accessmanagement updatedat chaneg sa schema(di pa tapos)s
 //download xlsx in tables
+//fix seed, gawan mo ng json every seed na gagawin

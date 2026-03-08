@@ -1,0 +1,32 @@
+[
+  {
+    "email": "admin@example.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "fullName": "Admin User",
+    "phoneNumber": "+1234567890",
+    "password": "Password123",
+    "role": "USER",
+    "isActive": true
+  },
+  {
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "fullName": "John Doe",
+    "phoneNumber": "+1234567890",
+    "password": "Password123",
+    "role": "MODERATOR",
+    "isActive": true
+  },
+  {
+    "email": "kyle@gmail.com",
+    "firstName": "Kyle",
+    "lastName": "Manuel",
+    "fullName": "Kyle Manuel",
+    "phoneNumber": "+1234567890",
+    "password": "Password123",
+    "role": "ADMIN",
+    "isActive": true
+  }
+]

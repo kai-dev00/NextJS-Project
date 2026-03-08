@@ -34,6 +34,7 @@ export type Column<T> = {
   header: string;
   cell?: (row: T) => React.ReactNode;
   className?: string;
+  exportValue?: (row: T) => string | number | null; //for excel export, if not provided it will use the cell value
 };
 
 type DataTableProps<T> = {
