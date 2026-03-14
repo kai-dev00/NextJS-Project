@@ -5,31 +5,35 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
 }
 
-
 model Role {
-  // id          Int      @id @default(autoincrement())
-   id          String @id @default(cuid())
-  name        String   @unique  // "USER", "ADMIN", "MODERATOR"
+  id          String  @id @default(uuid())
+  name        String  @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
   users       User[]
   invites     UserInvite[]
   permissions Permission[]
 }
 
 model Permission {
-  id          String  @id @default(cuid())
-  action      String  // create, read, update, delete
-  module      String  // users, categories, inventory, etc.
-  submodule   String  @default("")  // optional for more granular control
-  description String  @default("")
+  id String @id @default(uuid())
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  action      String
+  module      String
+  submodule   String  @default("")
+  description String?
+
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
 
   roles Role[]
 
@@ -38,56 +42,61 @@ model Permission {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  fullName  String?
-  phoneNumber      String
-  roleId    String  
-  emailVerifiedAt  DateTime?
-  isActive         Boolean  @default(false)
+  id     String @id @default(uuid())
+  roleId String
 
-  sessions  Session[]
+  email           String    @unique
+  password        String
+  firstName       String
+  lastName        String
+  fullName        String?
+  phoneNumber     String
+  emailVerifiedAt DateTime?
+  isActive        Boolean   @default(false)
+
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
+  role Role @relation(fields: [roleId], references: [id])
+
+  sessions       Session[]
   passwordResets PasswordReset[]
-  actionLogs ActionLog[] 
-
-  role      Role     @relation(fields: [roleId], references: [id])
-  createdAt DateTime @default(now())
-  createdBy   String?  // nullable for system-created categories
-  updatedAt DateTime @updatedAt
-  updatedBy   String?  // nullable for system-updated categories
+  actionLogs     ActionLog[]
 
   @@index([roleId])
 }
 
 model UserInvite {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  firstName   String
-  lastName    String
-  roleId      String
-  token       String   @unique
-  expiresAt   DateTime
-  usedAt      DateTime?
+  id String @id @default(uuid())
 
-  role        Role     @relation(fields: [roleId], references: [id])
-  createdAt   DateTime @default(now())
-  createdBy   String?  // nullable for system-created categories
-  updatedAt   DateTime @updatedAt  //nullable
-  updatedBy   String?  // nullable for system-updated categories
+  email     String    @unique
+  firstName String
+  lastName  String
+  roleId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
+  role Role @relation(fields: [roleId], references: [id])
 
   @@index([roleId])
 }
 
-
 model Session {
-  id               String   @id @default(uuid())
-  userId           String
+  id     String @id @default(uuid())
+  userId String
+
   refreshTokenHash String
-  expiresAt        DateTime
-  revoked          Boolean  @default(false)
+  revoked          Boolean @default(false)
+
+  expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) //delete also its sessions when user is deleted
 
@@ -95,52 +104,57 @@ model Session {
 }
 
 model PasswordReset {
-  id        String   @id @default(uuid())
-  userId    String
-  token     String   @unique
+  id     String @id @default(uuid())
+  userId String
+
+  token     String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 
-
 model ActionLog {
-  id        String   @id @default(uuid())
-  userId    String?           // nullable if SYSTEM action
-  module     String            // e.g., "Inventory"
-  submodule  String?           // e.g., "Milk", "Syrups"
-  action    String            // "create", "update", "delete"
-  recordId  String?           
-  before    Json?             
-  after     Json?             
+  id       String  @id @default(uuid())
+  userId   String?
+  recordId String?
+
+  module    String
+  submodule String?
+  action    String // "create", "update", "delete"
+  before    Json?
+  after     Json?
+
   createdAt DateTime @default(now())
 
-  user      User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+
   @@index([userId])
   @@index([module])
   @@index([submodule])
   @@index([action])
 }
 
-
 //Modules
 model Category {
-  id          String  @id @default(uuid())
+  id String @id @default(uuid())
 
-  name        String   @unique
+  name        String  @unique
   description String?
-  icon        String?  // emoji
-  color       String?  // hex color 
-  createdAt   DateTime @default(now())
-  createdBy   String?  // nullable for system-created categories
-  updatedAt   DateTime?
-  updatedBy   String?  // nullable for system-updated categories
+  icon        String? // emoji
+  color       String? // hex color 
 
-  totalPrice   Float    @default(0) 
-  inventories       Inventory[]   
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
+  totalPrice  Float       @default(0)
+  inventories Inventory[]
 }
 
 enum InventoryStatus {
@@ -150,6 +164,7 @@ enum InventoryStatus {
   warning
   discontinued
 }
+
 enum InventoryUnit {
   PCS
   KG
@@ -159,43 +174,43 @@ enum InventoryUnit {
 }
 
 model Inventory {
-  id          String  @id @default(uuid())
-  name        String   @unique
-  description String?
-  categoryId  String
-  quantity    Decimal      @default(0)
-  minimumStock Int      @default(0)
-  unitPrice   Decimal    @default(0)
-  status      InventoryStatus?   // in stock, low stock, critical, out of stock
-  unit        InventoryUnit
+  id         String @id @default(uuid())
+  categoryId String
 
-  createdAt   DateTime @default(now())
-  createdBy   String?  // nullable for system-created categories
-  updatedAt   DateTime?
-  updatedBy   String?  // nullable for system-updated categories
+  name         String           @unique
+  description  String?
+  quantity     Decimal          @default(0)
+  minimumStock Int              @default(0)
+  unitPrice    Decimal          @default(0)
+  status       InventoryStatus?
+  unit         InventoryUnit
 
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) //delete also its inventories when category is deleted
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade) //delete also its inventories when category is deleted
   purchaseItems PurchaseItem[]
 
   @@index([categoryId])
 }
 
-
 model Supplier {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  name        String   @unique
-  email       String?
-  phone       String?
-  address     String?
-  notes       String?
+  name    String  @unique
+  email   String?
+  phone   String?
+  address String?
+  notes   String?
 
-  createdAt   DateTime @default(now())
-  createdBy   String?
-  updatedAt   DateTime?
-  updatedBy   String?
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
 
-  purchases   Purchase[]
+  purchases Purchase[]
 }
 
 enum PurchaseStatus {
@@ -203,26 +218,32 @@ enum PurchaseStatus {
   RECEIVED
   CANCELLED
 }
+
 model Purchase {
-  id          String   @id @default(uuid())
-  supplierId  String
-  status      PurchaseStatus @default(DRAFT)
-  notes       String?
-  total       Decimal   @default(0)
-  createdAt   DateTime @default(now())
-  createdBy   String?
-  updatedAt   DateTime?
-  updatedBy   String?
-  supplier    Supplier @relation(fields: [supplierId], references: [id])
-  items       PurchaseItem[]
+  id         String @id @default(uuid())
+  supplierId String
+
+  status PurchaseStatus @default(DRAFT)
+  notes  String?
+  total  Decimal        @default(0)
+
+  createdAt DateTime  @default(now())
+  createdBy String?
+  updatedAt DateTime?
+  updatedBy String?
+
+  supplier Supplier       @relation(fields: [supplierId], references: [id])
+  items    PurchaseItem[]
 }
 
 model PurchaseItem {
-  id           String   @id @default(uuid())
-  purchaseId   String
-  inventoryId  String
-  quantity     Decimal
-  unitCost     Decimal
-  purchase     Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  inventory    Inventory @relation(fields: [inventoryId], references: [id])
+  id          String @id @default(uuid())
+  purchaseId  String
+  inventoryId String
+
+  quantity Decimal
+  unitCost Decimal
+
+  purchase  Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
 }

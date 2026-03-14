@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma";
 import AccessManagementClient from "../components/AccessManagementClient";
 import { getCurrentUserWithDetails } from "@/lib/auth";
+import { getInvites, getRoles, getUsers } from "../actions/users";
 
 export type UserRow = {
   id: string;
@@ -32,27 +32,11 @@ export default async function AccessManagement({
   const { search } = await searchParams;
   const permissionData = await getCurrentUserWithDetails();
   const permissions = permissionData?.role?.permissions || [];
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      fullName: true,
-      isActive: true,
-      emailVerifiedAt: true,
-      createdAt: true,
-      createdBy: true,
-      updatedBy: true,
-      updatedAt: true,
-      role: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const users = await getUsers();
+  const invites = await getInvites();
+  const roles = await getRoles();
+  const now = new Date();
+
   const userRows: UserRow[] = users.map((u) => ({
     id: u.id,
     email: u.email,
@@ -69,27 +53,6 @@ export default async function AccessManagement({
     status: "ACTIVE",
     source: "USER",
   }));
-
-  //userinvites
-  const invites = await prisma.userInvite.findMany({
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      expiresAt: true,
-      usedAt: true,
-      createdAt: true,
-      createdBy: true,
-      updatedBy: true,
-      updatedAt: true,
-      role: {
-        select: { name: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  const now = new Date();
 
   const inviteRows: UserRow[] = invites.map((i) => ({
     id: i.id,
@@ -109,14 +72,6 @@ export default async function AccessManagement({
   const rows: UserRow[] = [...userRows, ...inviteRows].sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
   );
-
-  const roles = await prisma.role.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    orderBy: { name: "asc" },
-  });
 
   return (
     <AccessManagementClient

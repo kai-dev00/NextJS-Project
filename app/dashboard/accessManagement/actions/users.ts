@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 import { UserFormValues } from "../schema";
 import { sendInviteEmail } from "@/lib/email";
 import { requirePermission } from "@/lib/auth-guard";
-import { getCurrentUser, getCurrentUserWithName } from "@/lib/auth";
+import { getCurrentUserWithName } from "@/lib/auth";
 import {
   createWithLog,
   deleteWithLog,
@@ -13,6 +13,7 @@ import {
 } from "@/lib/types/prismaLogger";
 import { realtime } from "@/lib/upstash/realtime";
 
+// Invite Action
 export async function inviteUserAction(input: UserFormValues) {
   await requirePermission("access-management:create:users");
   const currentUser = await getCurrentUserWithName();
@@ -75,24 +76,11 @@ export async function inviteUserAction(input: UserFormValues) {
     createdAt: new Date().toISOString(),
   });
 
-  // await prisma.userInvite.create({
-  //   data: {
-  //     createdBy: currentUser?.fullName ?? "System",
-  //     email: input.email,
-  //     firstName: input.firstName,
-  //     lastName: input.lastName,
-  //     roleId: input.roleId,
-  //     token,
-  //     expiresAt,
-  //   },
-  // });
-
   await sendInviteEmail(input.email, token);
   return { success: true, token };
 }
 
-//edit
-
+//Edit Action
 export async function editUserAction(input: UserFormValues) {
   const currentUser = await getCurrentUserWithName();
   const userId = currentUser?.userId ?? null;
@@ -127,6 +115,7 @@ export async function editUserAction(input: UserFormValues) {
         roleId: input.roleId,
         isActive: input.isActive,
         updatedBy: currentUser?.fullName ?? "System",
+        updatedAt: new Date(),
       },
       { userId, submodule: "users" },
     );
@@ -139,19 +128,6 @@ export async function editUserAction(input: UserFormValues) {
       user: currentUser?.fullName ?? null,
       createdAt: new Date().toISOString(),
     });
-
-    // await prisma.user.update({
-    //   where: { id: input.id },
-    //   data: {
-    //     email: input.email,
-    //     firstName: user.firstName,
-    //     lastName: user.lastName,
-    //     fullName: `${user.firstName} ${user.lastName}`,
-    //     roleId: input.roleId,
-    //     isActive: input.isActive,
-    //     updatedBy: currentUser?.fullName ?? "System", // use id or name?
-    //   },
-    // });
   } else if (invite) {
     // Update invite
     await updateWithLog(
@@ -163,6 +139,7 @@ export async function editUserAction(input: UserFormValues) {
         lastName: invite.lastName,
         roleId: input.roleId,
         updatedBy: currentUser?.fullName ?? "System",
+        updatedAt: new Date(),
       },
       { userId, submodule: "users" },
     );
@@ -175,22 +152,12 @@ export async function editUserAction(input: UserFormValues) {
       user: currentUser?.fullName ?? null,
       createdAt: new Date().toISOString(),
     });
-    // await prisma.userInvite.update({
-    //   where: { id: input.id },
-    //   data: {
-    //     email: input.email,
-    //     firstName: invite.firstName,
-    //     lastName: invite.lastName,
-    //     roleId: input.roleId,
-    //     updatedBy: currentUser?.fullName ?? "System", // use id or name?
-    //   },
-    // });
   }
 
   return { success: true };
 }
 
-//delete
+// Delete Action
 export async function deleteAccessAction(
   id: string,
   source: "USER" | "INVITE",
@@ -232,4 +199,59 @@ export async function deleteAccessAction(
   }
 
   return { success: true };
+}
+
+export async function getUsers() {
+  return await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      fullName: true,
+      isActive: true,
+      emailVerifiedAt: true,
+      createdAt: true,
+      createdBy: true,
+      updatedBy: true,
+      updatedAt: true,
+      role: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getInvites() {
+  return await prisma.userInvite.findMany({
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      expiresAt: true,
+      usedAt: true,
+      createdAt: true,
+      createdBy: true,
+      updatedBy: true,
+      updatedAt: true,
+      role: {
+        select: { name: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getRoles() {
+  return await prisma.role.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: { name: "asc" },
+  });
 }
