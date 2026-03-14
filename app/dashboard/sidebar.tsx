@@ -12,6 +12,7 @@ import {
   MdManageAccounts,
 } from "react-icons/md";
 import { FaCartFlatbed, FaClipboardList } from "react-icons/fa6";
+import { IoStatsChartSharp } from "react-icons/io5";
 import { IconType } from "react-icons";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -70,6 +71,13 @@ const navItems: NavItem[] = [
     icon: FaClipboardList,
     exact: true,
     permission: "purchase:read",
+  },
+  {
+    label: "Reports",
+    href: "/dashboard/reports",
+    icon: IoStatsChartSharp,
+    exact: true,
+    permission: "reports:read",
   },
   {
     label: "Access Management",

@@ -12,6 +12,7 @@ import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
 import { InventoryWithCategory, PurchaseHistoryItem } from "../InventoryClient";
 import {
+  formatDate,
   formatPeso,
   formatUnit,
   inventoryStatusConfig,
@@ -163,6 +164,12 @@ export default function InventoryTable({
       exportValue: (row) => formatPeso(row.unitPrice),
     },
     {
+      key: "createdAt",
+      header: "Created At",
+      cell: (row) => formatDate(row.createdAt),
+      exportValue: (row) => formatDate(row.createdAt),
+    },
+    {
       key: "actions",
       header: "",
       className: "text-right",
@@ -244,6 +251,7 @@ export default function InventoryTable({
             })),
           },
         ]}
+        dateRangeKey="createdAt"
       />
       {/* <Button onClick={() => downloadExcel(inventories, columns, "inventory")}>
         Download Excel

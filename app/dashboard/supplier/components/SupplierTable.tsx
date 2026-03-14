@@ -15,7 +15,7 @@ import { CustomTooltip } from "@/components/CustomTooltip";
 import { TruncatedCell } from "../../utils/descriptionHelper";
 import { deleteSupplier } from "../actions";
 import { SupplierViewModal } from "./SupplierViewModal";
-import { today } from "../../utils";
+import { formatDate, today } from "../../utils";
 import { downloadExcel } from "../../utils/downloadExcel";
 
 type Props = {
@@ -98,6 +98,13 @@ export default function SupplierTable({
       },
       exportValue: (row) => row.notes,
     },
+
+    {
+      key: "createdAt",
+      header: "Created At",
+      cell: (row) => formatDate(row.createdAt),
+      exportValue: (row) => formatDate(row.createdAt),
+    },
     {
       key: "actions",
       header: "",
@@ -145,6 +152,7 @@ export default function SupplierTable({
         defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
+        dateRangeKey="createdAt"
         headerActions={
           <div className="flex gap-2">
             {suppliers.length > 0 && (
