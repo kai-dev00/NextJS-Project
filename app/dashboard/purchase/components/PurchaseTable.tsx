@@ -147,7 +147,7 @@ export default function PurchaseTable({
     },
     {
       key: "createdAt",
-      header: "Date",
+      header: "Created At",
       cell: (row) => formatDate(row.createdAt),
       exportValue: (row) => formatDate(row.createdAt),
     },
@@ -222,6 +222,7 @@ export default function PurchaseTable({
         data={purchases}
         columns={columns}
         keyField="id"
+        dateRangeKey="createdAt"
         headerActions={
           <div className="flex gap-2">
             {purchases.length > 0 && (

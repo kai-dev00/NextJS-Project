@@ -12,7 +12,7 @@ import { useState } from "react";
 import { Permission } from "@/lib/types";
 import NoPermission from "../../no-permission";
 import { usePermission } from "@/lib/permissions/usePermission";
-import { formatPeso, today } from "../../utils";
+import { formatDate, formatPeso, today } from "../../utils";
 import { CategoryViewModal } from "./categoryViewModal";
 import { TruncatedCell } from "../../utils/descriptionHelper";
 import { CustomTooltip } from "@/components/CustomTooltip";
@@ -83,6 +83,13 @@ export default function CategoryTable({
       cell: (row) => formatPeso(row.totalPrice),
       exportValue: (row) => formatPeso(row.totalPrice),
     },
+
+    {
+      key: "createdAt",
+      header: "Created At",
+      cell: (row) => formatDate(row.createdAt),
+      exportValue: (row) => formatDate(row.createdAt),
+    },
     {
       key: "actions",
       header: "",
@@ -132,6 +139,7 @@ export default function CategoryTable({
         defaultSearch={defaultSearch}
         columns={columns}
         keyField="id"
+        dateRangeKey="createdAt"
         headerActions={
           <div className="flex gap-2">
             {categories.length > 0 && (

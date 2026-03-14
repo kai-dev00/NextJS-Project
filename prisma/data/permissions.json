@@ -21,6 +21,8 @@
   { "action": "update", "module": "purchase" },
   { "action": "delete", "module": "purchase" },
 
+  { "action": "read", "module": "reports" },
+
   { "action": "read", "module": "access-management", "submodule": "users" },
   { "action": "create", "module": "access-management", "submodule": "users" },
   { "action": "update", "module": "access-management", "submodule": "users" },

@@ -18,6 +18,7 @@ import {
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 import { inventoryStatusConfig } from "@/app/dashboard/utils";
+import { DateRangeFilter } from "./CustomDateRange";
 
 export type FilterOption = {
   label: string;
@@ -46,6 +47,7 @@ type DataTableProps<T> = {
   filters?: FilterConfig[];
   defaultSearch?: string;
   highlightId?: string;
+  dateRangeKey?: string;
 };
 
 export function DataTable<T extends Record<string, any>>({
@@ -57,6 +59,7 @@ export function DataTable<T extends Record<string, any>>({
   filters = [],
   defaultSearch = "",
   highlightId = "",
+  dateRangeKey,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [idFilter, setIdFilter] = useState(defaultSearch);
@@ -66,13 +69,45 @@ export function DataTable<T extends Record<string, any>>({
   //
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
     {},
-  ); // 👈 new
+  );
+  const [dateRange, setDateRange] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
+    from: null,
+    to: null,
+  });
   const [openFilter, setOpenFilter] = useState<string | null>(null);
+  // const filteredData = useMemo(() => {
+  //   let result = data;
+  //   if (idFilter) {
+  //     result = result.filter((row) => String(row["id"] ?? "") === idFilter);
+  //   }
+  //   if (search) {
+  //     const lowerSearch = search.toLowerCase();
+  //     result = result.filter((row) =>
+  //       columns.some((col) => {
+  //         const value = String(row[col.key as keyof T] ?? "").toLowerCase();
+  //         return value.includes(lowerSearch);
+  //       }),
+  //     );
+  //   }
+
+  //   Object.entries(activeFilters).forEach(([key, value]) => {
+  //     if (value) {
+  //       result = result.filter((row) => String(row[key] ?? "") === value);
+  //     }
+  //   });
+
+  //   return result;
+  // }, [search, data, columns, activeFilters, idFilter]);
   const filteredData = useMemo(() => {
     let result = data;
+
     if (idFilter) {
       result = result.filter((row) => String(row["id"] ?? "") === idFilter);
     }
+
     if (search) {
       const lowerSearch = search.toLowerCase();
       result = result.filter((row) =>
@@ -83,27 +118,27 @@ export function DataTable<T extends Record<string, any>>({
       );
     }
 
-    // Apply active filters 👈
     Object.entries(activeFilters).forEach(([key, value]) => {
       if (value) {
         result = result.filter((row) => String(row[key] ?? "") === value);
       }
     });
 
-    return result;
-  }, [search, data, columns, activeFilters, idFilter]);
-  // Filtered data based on search
-  // const filteredData = useMemo(() => {
-  //   if (!search) return data;
+    if (dateRangeKey && dateRange.from) {
+      result = result.filter((row) => {
+        const val = row[dateRangeKey];
+        if (!val) return false;
+        const date = new Date(val);
+        const from = dateRange.from!;
+        const to = dateRange.to
+          ? new Date(new Date(dateRange.to).setHours(23, 59, 59, 999))
+          : new Date(new Date(from).setHours(23, 59, 59, 999));
+        return date >= from && date <= to;
+      });
+    }
 
-  //   const lowerSearch = search.toLowerCase();
-  //   return data.filter((row) =>
-  //     columns.some((col) => {
-  //       const value = String(row[col.key as keyof T] ?? "").toLowerCase();
-  //       return value.includes(lowerSearch);
-  //     }),
-  //   );
-  // }, [search, data, columns]);
+    return result;
+  }, [search, data, columns, activeFilters, idFilter, dateRange, dateRangeKey]);
 
   // Pagination
   const totalPages = Math.ceil(filteredData.length / pageSize);
@@ -216,6 +251,15 @@ export function DataTable<T extends Record<string, any>>({
               )}
             </div>
           ))}
+          {dateRangeKey && (
+            <DateRangeFilter
+              value={dateRange}
+              onChange={(range) => {
+                setDateRange(range);
+                setCurrentPage(1);
+              }}
+            />
+          )}
         </div>
         {headerActions && <div>{headerActions}</div>}
       </div>
