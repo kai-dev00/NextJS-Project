@@ -2,23 +2,16 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { getCurrentUser, getCurrentUserWithName } from "@/lib/auth";
+import { getCurrentUserWithName } from "@/lib/auth";
 import {
   createWithLog,
   deleteWithLog,
   updateWithLog,
 } from "@/lib/types/prismaLogger";
 import { realtime } from "@/lib/upstash/realtime";
+import { RoleFormValues, roleSchema } from "../schema";
 
-const roleSchema = z.object({
-  name: z.string().min(1, "Role name is required"),
-  description: z.string().default(""),
-  permissionIds: z.array(z.string()).default([]),
-});
-
-export type RoleFormValues = z.infer<typeof roleSchema>;
-
+// Create Action
 export async function createRoleAction(data: RoleFormValues) {
   const validated = roleSchema.parse(data);
 
@@ -29,12 +22,8 @@ export async function createRoleAction(data: RoleFormValues) {
   if (existing) {
     throw new Error("Role with this name already exists");
   }
-
-  // const currentUser = await getCurrentUser();
   const currentUser = await getCurrentUserWithName();
-
   const userId = currentUser?.userId ?? null;
-
   const newRole = (await createWithLog(
     "role",
     {
@@ -62,20 +51,11 @@ export async function createRoleAction(data: RoleFormValues) {
     createdAt: new Date().toISOString(),
   });
 
-  // await prisma.role.create({
-  //   data: {
-  //     name: validated.name,
-  //     description: validated.description,
-  //     permissions: {
-  //       connect: validated.permissionIds.map((id) => ({ id })),
-  //     },
-  //   },
-  // });
-
   revalidatePath("/roles");
   return newRole;
 }
 
+// Update Action
 export async function updateRoleAction(id: string, data: RoleFormValues) {
   const validated = roleSchema.parse(data);
 
@@ -90,20 +70,7 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
     throw new Error("Role with this name already exists");
   }
 
-  // await prisma.role.update({
-  //   where: { id },
-  //   data: {
-  //     name: validated.name,
-  //     description: validated.description,
-  //     permissions: {
-  //       set: validated.permissionIds.map((id) => ({ id })),
-  //     },
-  //   },
-  // });
-
-  // const currentUser = await getCurrentUser();
   const currentUser = await getCurrentUserWithName();
-
   const userId = currentUser?.userId ?? null;
 
   const updatedRole = (await updateWithLog(
@@ -112,6 +79,8 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
     {
       name: validated.name,
       description: validated.description,
+      updatedBy: currentUser?.fullName ?? "System",
+      updatedAt: new Date(),
       permissions: {
         set: validated.permissionIds.map((id) => ({ id })),
       },
@@ -140,8 +109,8 @@ export async function updateRoleAction(id: string, data: RoleFormValues) {
   return updatedRole;
 }
 
+// Delete Action
 export async function deleteRoleAction(id: string) {
-  // const currentUser = await getCurrentUser();
   const currentUser = await getCurrentUserWithName();
   const currentUserRoleId = currentUser?.roleId;
   const userId = currentUser?.userId ?? null;
@@ -192,7 +161,7 @@ export async function deleteRoleAction(id: string) {
   return deletedRole;
 }
 
-export async function getRoles() {
+export async function getRolesCount() {
   return await prisma.role.findMany({
     include: {
       permissions: true,

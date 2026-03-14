@@ -1,5 +1,5 @@
 import { getCurrentUserWithDetails } from "@/lib/auth";
-import { getRoles } from "../actions/roles";
+import { getRolesCount } from "../actions/roles";
 import { RolesManagementClient } from "../components/RolesManagementClient";
 
 export default async function RolesPage({
@@ -9,7 +9,7 @@ export default async function RolesPage({
 }) {
   const { search } = await searchParams;
 
-  const roles = await getRoles();
+  const roles = await getRolesCount();
   const permissionData = await getCurrentUserWithDetails();
   const permissions = permissionData?.role?.permissions || [];
 
